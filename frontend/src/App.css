@@ -1,0 +1,376 @@
+/* Chez Loman Luxury Styles */
+
+/* Theme backgrounds */
+.theme-bg {
+  background-color: #05100D;
+}
+
+.light-mode .theme-bg {
+  background-color: #F9F7F2;
+}
+
+/* Hero Section */
+.hero-overlay {
+  background: linear-gradient(to bottom, rgba(5, 16, 13, 0.4), rgba(5, 16, 13, 0.95));
+}
+
+/* Card hover effects */
+.luxury-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.5s ease, border-color 0.5s ease, transform 0.5s ease;
+}
+
+.luxury-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.3);
+  transform: translateY(-4px);
+}
+
+/* Image styles */
+.img-luxury {
+  transition: transform 0.7s ease;
+}
+
+.img-luxury:hover {
+  transform: scale(1.03);
+}
+
+/* Button styles */
+.btn-gold {
+  background: #D4AF37;
+  color: #0F2E24;
+  padding: 1rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: background-color 0.4s ease, transform 0.3s ease, box-shadow 0.4s ease;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.btn-gold:hover {
+  background: #F9F7F2;
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+}
+
+.btn-outline-gold {
+  background: transparent;
+  color: #D4AF37;
+  padding: 1rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+.btn-outline-gold:hover {
+  background: #D4AF37;
+  color: #0F2E24;
+  border-color: #D4AF37;
+}
+
+/* Navigation */
+.nav-luxury {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(5, 16, 13, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-link {
+  color: rgba(249, 247, 242, 0.7);
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #D4AF37;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #D4AF37;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Section divider */
+.divider-gold {
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+}
+
+/* Menu item */
+.menu-item-luxury {
+  background: rgba(26, 77, 62, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.menu-item-luxury:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+/* Price tag */
+.price-gold {
+  color: #D4AF37;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
+
+/* WhatsApp Button */
+.whatsapp-luxury {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  box-shadow: 0 8px 32px rgba(37, 211, 102, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.whatsapp-luxury:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 12px 40px rgba(37, 211, 102, 0.5);
+}
+
+/* Gallery masonry */
+.gallery-item-luxury {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+
+.gallery-item-luxury::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 16, 13, 0.8), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.gallery-item-luxury:hover::after {
+  opacity: 1;
+}
+
+/* Form inputs luxury */
+.input-luxury {
+  background: rgba(26, 77, 62, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #F9F7F2;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-luxury:focus {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+  outline: none;
+}
+
+/* Star rating gold */
+.star-gold {
+  color: #D4AF37;
+}
+
+/* Bento grid */
+.bento-luxury {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .bento-luxury {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(200px, auto);
+  }
+  
+  .bento-luxury .bento-large {
+    grid-column: span 2;
+  }
+  
+  .bento-luxury .bento-tall {
+    grid-row: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-luxury {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .bento-luxury .bento-large {
+    grid-column: span 2;
+  }
+}
+
+/* Reveal animations */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.reveal-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* ==================== LIGHT MODE OVERRIDES ==================== */
+
+html.light-mode,
+html.light-mode body {
+  background-color: #F9F7F2;
+  color: #1a1a1a;
+}
+
+.light-mode .nav-luxury {
+  background: rgba(249, 247, 242, 0.95);
+  border-color: rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.light-mode nav {
+  background: rgba(249, 247, 242, 0.7) !important;
+  backdrop-filter: blur(8px);
+}
+
+.light-mode nav.shadow-2xl {
+  background: rgba(249, 247, 242, 0.95) !important;
+}
+
+.light-mode .nav-link {
+  color: rgba(26, 26, 26, 0.7);
+}
+
+.light-mode nav a:not(.btn-gold),
+.light-mode nav button:not(.btn-gold) {
+  color: rgba(26, 26, 26, 0.7);
+}
+
+.light-mode nav .text-\[\#F9F7F2\],
+.light-mode nav .text-\[\#A3B1AD\] {
+  color: rgba(26, 26, 26, 0.7);
+}
+
+.light-mode .luxury-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.light-mode .luxury-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .menu-item-luxury {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.light-mode .menu-item-luxury:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.light-mode .input-luxury {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+}
+
+.light-mode .btn-gold:hover {
+  background: #0F2E24;
+  color: #F9F7F2;
+}
+
+.light-mode .gallery-item-luxury::after {
+  background: linear-gradient(to top, rgba(249, 247, 242, 0.8), transparent 50%);
+}
+
+.light-mode footer {
+  background-color: #0F2E24 !important;
+}
+
+/* Light mode - Text color overrides using CSS variables approach */
+.light-mode [class*="bg-[#05100D]"]:not(footer):not(footer *):not(nav *):not(.hero-overlay *) {
+  background-color: #F9F7F2 !important;
+}
+
+.light-mode [class*="text-[#F9F7F2]"]:not(footer *):not(nav *):not(.hero-overlay *):not([class*="btn-gold"]) {
+  color: #1a1a1a !important;
+}
+
+.light-mode [class*="text-[#A3B1AD]"]:not(footer *):not(nav *) {
+  color: #666 !important;
+}
+
+.light-mode [class*="bg-[#0F2E24]"]:not(footer):not(footer *):not(nav *) {
+  background-color: #e8e5de !important;
+}
+
+.light-mode [class*="bg-[#1A4D3E]"]:not(footer *):not(nav *) {
+  background-color: #1A4D3E !important;
+}
+
+.light-mode [class*="border-white/"]:not(footer *):not(nav *) {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-mode [class*="bg-white/5"]:not(footer *):not(nav *),
+.light-mode [class*="bg-white/3"]:not(footer *):not(nav *) {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.light-mode [class*="bg-white/10"]:not(footer *):not(nav *) {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Light mode scrollbar */
+.light-mode ::-webkit-scrollbar-track {
+  background: #F9F7F2;
+}
+
+.light-mode ::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+}
+
+/* Light mode - Section backgrounds */
+.light-mode section[class*="bg-[#05100D]"] {
+  background-color: #F9F7F2 !important;
+}
+
+.light-mode section[class*="bg-[#0A1F19]"],
+.light-mode div[class*="bg-[#0A1F19]"] {
+  background-color: #f0ede6 !important;
+}
+
+/* Light mode mobile menu */
+.light-mode [class*="bg-[#05100D]/98"] {
+  background-color: rgba(249, 247, 242, 0.98) !important;
+}
+
+.light-mode [class*="bg-[#05100D]/98"] a,
+.light-mode [class*="bg-[#05100D]/98"] button {
+  color: #1a1a1a;
+}
+
+/* Light mode - select/option elements */
+.light-mode select option {
+  background-color: #F9F7F2 !important;
+  color: #1a1a1a !important;
+}

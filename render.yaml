@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: chez-loman
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt && cd frontend && npm install && npm run build
+    startCommand: uvicorn backend.server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: DB_NAME
+        value: chezloman
+      - key: MONGO_URL
+        sync: false

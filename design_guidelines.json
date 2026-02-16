@@ -1,0 +1,153 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "Chez Loman",
+      "archetype": "Jewel & Luxury",
+      "vibe": "Sophisticated, Intimate, Culinary Excellence, Modern African",
+      "persona": "E1 - The Anti-AI Designer"
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Playfair Display, serif",
+        "body": "Manrope, sans-serif",
+        "accent": "Cormorant Garamond, serif"
+      },
+      "weights": {
+        "light": 300,
+        "regular": 400,
+        "medium": 500,
+        "bold": 700
+      },
+      "usage": {
+        "h1": "text-5xl md:text-7xl font-accent italic tracking-tight leading-none",
+        "h2": "text-4xl md:text-5xl font-headings font-normal tracking-tight",
+        "h3": "text-2xl md:text-3xl font-headings font-medium",
+        "body": "text-base md:text-lg font-body leading-relaxed text-white/80",
+        "label": "text-xs font-body uppercase tracking-[0.2em] text-gold"
+      }
+    },
+    "colors": {
+      "palette": {
+        "primary": {
+          "DEFAULT": "#1A4D3E",
+          "dark": "#0F2E24",
+          "light": "#2C6B59"
+        },
+        "secondary": {
+          "DEFAULT": "#D4AF37",
+          "light": "#F2CC8F",
+          "dark": "#AA8C2C"
+        },
+        "background": {
+          "DEFAULT": "#05100D",
+          "paper": "#F9F7F2",
+          "glass": "rgba(26, 77, 62, 0.3)"
+        },
+        "text": {
+          "primary": "#F9F7F2",
+          "secondary": "#A3B1AD",
+          "accent": "#D4AF37"
+        },
+        "status": {
+          "success": "#27AE60",
+          "error": "#E74C3C"
+        }
+      },
+      "gradients": {
+        "hero": "linear-gradient(to bottom, rgba(5, 16, 13, 0.3), #05100D)",
+        "gold_shimmer": "linear-gradient(45deg, #AA8C2C, #F2CC8F, #AA8C2C)"
+      }
+    },
+    "spacing": {
+      "container": "px-6 md:px-12 lg:px-24",
+      "section": "py-20 md:py-32",
+      "element": "gap-6 md:gap-12"
+    },
+    "visual_enhancers": {
+      "glassmorphism": {
+        "default": "backdrop-blur-xl bg-primary/20 border border-white/10 shadow-2xl",
+        "heavy": "backdrop-blur-2xl bg-black/40 border border-white/5"
+      },
+      "borders": {
+        "gold_thin": "border border-secondary/30",
+        "gold_glow": "border border-secondary/50 shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+      },
+      "shadows": {
+        "luxury": "0 20px 40px -10px rgba(0,0,0,0.5)",
+        "glow": "0 0 20px rgba(212, 175, 55, 0.15)"
+      },
+      "textures": {
+        "noise": "url('/noise.png') opacity-5",
+        "grain": "mix-blend-overlay opacity-10"
+      }
+    },
+    "layout_strategies": {
+      "grid_system": "Bento Grid (Mode A: Tetris)",
+      "alignment": "Asymmetrical balance. Never center text unless it's a poetic stanza.",
+      "hero_style": "Cinematic Fullscreen with Dark Green Overlay + Gold Typography"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-secondary text-primary hover:bg-white hover:text-primary transition-all duration-500 rounded-full px-8 py-4 font-bold tracking-wide shadow-glow",
+      "secondary": "bg-transparent border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-all duration-500 rounded-full px-8 py-4 font-medium tracking-wide",
+      "ghost": "text-white hover:text-secondary transition-colors duration-300 underline-offset-8 hover:underline"
+    },
+    "cards": {
+      "menu_item": "group relative overflow-hidden bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-500 p-6 rounded-xl",
+      "feature": "bg-primary/40 backdrop-blur-md border border-white/10 p-8 rounded-2xl hover:border-secondary/30 transition-all duration-500"
+    },
+    "navigation": {
+      "style": "Floating Glass Bar",
+      "classes": "fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-black/20 backdrop-blur-xl border border-white/10 rounded-full px-8 py-4 flex items-center gap-8"
+    }
+  },
+  "assets": {
+    "images": {
+      "logo": "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/teiqxcvq_logo.jpg",
+      "hero_bg": "https://images.unsplash.com/photo-1673512703111-c38c42a1f1a3?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "ambiance_1": "https://images.unsplash.com/photo-1575824244772-e180d5965ce6?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "food_signature": "https://images.unsplash.com/photo-1665332561290-cc6757172890?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "user_client_eating": "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg",
+      "user_kids": "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/07tbw3nn_cc.jpg",
+      "user_staff": "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/smtxt9or_chl.jpg"
+    },
+    "icons": "Lucide React (default) or Phosphor Icons (recommended for luxury)"
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Implement the 'Jewel & Luxury' archetype. Dark, moody, expensive.",
+      "Use the provided user assets prominently but tastefully (e.g., in shaped frames or parallax containers).",
+      "STRICTLY AVOID generic orange/terracotta. Use Gold (#D4AF37) for all accents.",
+      "Ensure the 'Green' is the specific #1A4D3E from the logo, or darker variants.",
+      "Use 'Manrope' for body text and 'Playfair Display' for headings. Import them via Google Fonts.",
+      "Create a 'design_system' folder or file to centralize these constants if possible, or just hardcode in Tailwind config."
+    ],
+    "pages": {
+      "home": "Hero with video/image background (darkened). 'Book Table' CTA in Gold. Section for 'Signature Dishes' using Bento Grid.",
+      "menu": "Not a PDF list. Interactive, categorized menu with hover effects on items. Prices in Gold.",
+      "about": "Storytelling focus. Use the 'Staff' and 'Client' photos here. Text should be poetic.",
+      "gallery": "Masonry layout. Mix of food, interior, and people shots.",
+      "contact": "Minimalist form. Gold borders. Map integration style: Dark mode map."
+    },
+    "animations": {
+      "scroll": "Use 'framer-motion' for reveal effects (fade-up, stagger-children).",
+      "hover": "Subtle scaling (scale-105) and border-color shifts.",
+      "loading": "Gold progress bar or logo pulse."
+    }
+  },
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN"
+  ]
+}

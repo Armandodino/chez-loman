@@ -1,0 +1,83 @@
+  Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting six>=1.9.0 (from ecdsa!=0.15->python-jose==3.5.0->-r backend/requirements.txt (line 11))
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Using cached fastapi-0.110.1-py3-none-any.whl (91 kB)
+Using cached pydantic-2.12.5-py3-none-any.whl (463 kB)
+Using cached starlette-0.37.2-py3-none-any.whl (71 kB)
+Using cached uvicorn-0.25.0-py3-none-any.whl (60 kB)
+Using cached motor-3.3.1-py3-none-any.whl (70 kB)
+Using cached dnspython-2.8.0-py3-none-any.whl (331 kB)
+Using cached python_dotenv-1.2.1-py3-none-any.whl (21 kB)
+Using cached python_multipart-0.0.22-py3-none-any.whl (24 kB)
+Using cached openai-1.99.9-py3-none-any.whl (786 kB)
+Using cached python_jose-3.5.0-py2.py3-none-any.whl (34 kB)
+Using cached passlib-1.7.4-py2.py3-none-any.whl (525 kB)
+Using cached bcrypt-4.1.3-cp39-abi3-manylinux_2_28_x86_64.whl (283 kB)
+Using cached pydantic_core-2.41.5-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+Using cached anyio-4.12.1-py3-none-any.whl (113 kB)
+Using cached distro-1.9.0-py3-none-any.whl (20 kB)
+Using cached httpx-0.28.1-py3-none-any.whl (73 kB)
+Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+Using cached jiter-0.13.0-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (360 kB)
+Using cached rsa-4.9.1-py3-none-any.whl (34 kB)
+Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Using cached click-8.3.1-py3-none-any.whl (108 kB)
+Using cached ecdsa-0.19.1-py2.py3-none-any.whl (150 kB)
+Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+Using cached idna-3.11-py3-none-any.whl (71 kB)
+Using cached pyasn1-0.6.2-py3-none-any.whl (83 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Using cached tqdm-4.67.3-py3-none-any.whl (78 kB)
+Using cached typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+Using cached certifi-2026.1.4-py3-none-any.whl (152 kB)
+Using cached sniffio-1.3.1-py3-none-any.whl (10 kB)
+Installing collected packages: passlib, typing-extensions, tqdm, sniffio, six, python-multipart, python-dotenv, pyasn1, jiter, idna, h11, dnspython, distro, click, certifi, bcrypt, annotated-types, uvicorn, typing-inspection, rsa, pymongo, pydantic-core, httpcore, ecdsa, anyio, starlette, python-jose, pydantic, motor, httpx, openai, fastapi
+Successfully installed annotated-types-0.7.0 anyio-4.12.1 bcrypt-4.1.3 certifi-2026.1.4 click-8.3.1 distro-1.9.0 dnspython-2.8.0 ecdsa-0.19.1 fastapi-0.110.1 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.11 jiter-0.13.0 motor-3.3.1 openai-1.99.9 passlib-1.7.4 pyasn1-0.6.2 pydantic-2.12.5 pydantic-core-2.41.5 pymongo-4.5.0 python-dotenv-1.2.1 python-jose-3.5.0 python-multipart-0.0.22 rsa-4.9.1 six-1.17.0 sniffio-1.3.1 starlette-0.37.2 tqdm-4.67.3 typing-extensions-4.15.0 typing-inspection-0.4.2 uvicorn-0.25.0
+[notice] A new release of pip is available: 25.3 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+==> Using Node.js version 22.22.0 (default)
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+added 1495 packages, and audited 1496 packages in 13s
+283 packages are looking for funding
+  run `npm fund` for details
+11 vulnerabilities (2 low, 3 moderate, 6 high)
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> frontend@0.1.0 build
+> craco build
+Creating an optimized production build...
+Compiled successfully.
+File sizes after gzip:
+  212.8 kB  build/static/js/main.0ff82525.js
+  13.02 kB  build/static/css/main.79665643.css
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+The build folder is ready to be deployed.
+You may serve it with a static server:
+  npm install -g serve
+  serve -s build
+Find out more about deployment here:
+  https://cra.link/deployment
+==> Uploading build...
+==> Uploaded in 11.7s. Compression took 8.9s
+==> Build successful 🎉
+==> Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+==> Running ' uvicorn backend.server:app --host 0.0.0.0 --port $PORT'
+/opt/render/project/src/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+INFO:     Started server process [56]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:10000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:43558 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+==> Your service is live 🎉
+INFO:     35.227.183.65:0 - "GET / HTTP/1.1" 200 OK
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://chez-loman.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////

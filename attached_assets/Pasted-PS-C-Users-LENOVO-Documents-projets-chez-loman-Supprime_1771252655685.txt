@@ -1,0 +1,275 @@
+PS C:\Users\LENOVO\Documents\projets\chez-loman> # Supprimez le dossier .git corrompu
+PS C:\Users\LENOVO\Documents\projets\chez-loman> Remove-Item -Recurse -Force .git
+PS C:\Users\LENOVO\Documents\projets\chez-loman>
+PS C:\Users\LENOVO\Documents\projets\chez-loman> # Réinitialisez Git proprement
+PS C:\Users\LENOVO\Documents\projets\chez-loman> git init
+Initialized empty Git repository in C:/Users/LENOVO/Documents/projets/chez-loman/.git/
+PS C:\Users\LENOVO\Documents\projets\chez-loman> git add .
+warning: in the working copy of '.emergent/emergent.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitconfig', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.replit', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'DEPLOYMENT_GUIDE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/ai_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/requirements.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/server.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend_test.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'design_guidelines.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/components.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/craco.config.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/jsconfig.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/plugins/health-check/health-endpoints.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/plugins/health-check/webpack-health-plugin.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/plugins/visual-edits/babel-metadata-plugin.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/plugins/visual-edits/dev-server-setup.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/postcss.config.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/public/index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/App.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/App.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/AdminButton.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/Footer.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/MenuCard.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/Navbar.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ScrollToTop.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/StarRating.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/WhatsAppButton.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/accordion.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/alert-dialog.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/alert.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/aspect-ratio.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/avatar.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/badge.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/breadcrumb.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/button.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/calendar.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/card.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/carousel.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/checkbox.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/collapsible.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/command.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/context-menu.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/dialog.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/drawer.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/dropdown-menu.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/form.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/hover-card.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/input-otp.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/input.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/label.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/menubar.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/navigation-menu.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/pagination.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/popover.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/progress.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/radio-group.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/resizable.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/scroll-area.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/select.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/separator.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/sheet.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/skeleton.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/slider.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/sonner.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/switch.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/table.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/tabs.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/textarea.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/toast.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/toaster.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/toggle-group.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/toggle.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/components/ui/tooltip.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/hooks/use-toast.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/index.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/index.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/utils.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/AboutPage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/AdminPage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/ContactPage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/DashboardPage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/GalleryPage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/HomePage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/pages/MenuPage.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/tailwind.config.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'memory/PRD.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'pyproject.toml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'render.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'replit.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test_reports/iteration_1.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test_reports/iteration_2.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test_reports/iteration_3.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test_result.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'vercel.json', LF will be replaced by CRLF the next time Git touches it
+PS C:\Users\LENOVO\Documents\projets\chez-loman> git commit -m "Mise à jour du projet avec système de commentaires"
+[master (root-commit) 5a3db03] Mise à jour du projet avec système de commentaires
+ 147 files changed, 35696 insertions(+)
+ create mode 100644 .emergent/emergent.yml
+ create mode 100644 .gitconfig
+ create mode 100644 .gitignore
+ create mode 100644 .local/state/replit/agent/.agent_state_05ef778439af700145ef53275c5436716fa4c46d.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_122d15912ee2e05a64a5baef88f0b8edc96133ce.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_1acf95222e5fb186e6eacee0d03a88ad3b74f3e0.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_4a76a98e23a53fd3a703e3bf0ea459e8dd131f41.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_50e3e452c119240ce1b1e85f29c8223dda5a5fb2.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_53018b60e00aeffe2e44a0f0cad3cfcabe043a26.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_53fddc09a892340445247e7c6c2d53202ec3806c.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_57ef708da3c27d0d5e7c6ae0f201226e66d9160e.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_767b69e13ab9470b53920ff1c9b33f9dea0fff7e.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_79b8d80b65b6ccb1650941b218767640d4e1a576.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_8425d6361f0254ffa8e9ef1f1f3cd06120247abe.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_87e9d32666abb1e560fd232fe3f6720da14c7aea.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_92adf94241068608953a974ffc0baec13d004d02.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_94ebb5a986dbb8bdfa4dff4e32bd97323f7c997a.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_99dc61c8a1e6a786edd339048f06e0a9815601f9.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_9a0953a7a9a50f249a11a0bc57e062d2477a0017.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_b34ecfd9759eb20d8457b66cea21f1cff30500a9.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_b5058d389d2225c0826890e35b2810a02e7b6748.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_b5f8bc68316f2022b51b0ae9182dfb62ebc15925.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_c39d1969ad53829706b867da0cea3b22069553eb.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_d5d4d014b517ecf6e8ec6ec02cf618f0203aab52.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_d7aa4de4b5c1b346819f983f604d0bc6f360d36a.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_ecccccf4a0e2b718b1784c617a36b4846e9c8e5d.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_f1d4ed79e04d4f4279967ba28157cf6659cb0777.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_f344e10b12c3d2c1055945e14d5c385b74d526f8.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_f985fb2d0d5290dab9cc06c328cf5f014350939c.bin
+ create mode 100644 .local/state/replit/agent/.agent_state_main.bin
+ create mode 100644 .local/state/replit/agent/.latest.json
+ create mode 100644 .local/state/replit/agent/repl_state.bin
+ create mode 100644 .replit
+ create mode 100644 DEPLOYMENT_GUIDE.md
+ create mode 100644 README.md
+ create mode 100644 attached_assets/Pasted--Cloning-from-https-github-com-Armandodino-chez-loman-C_1771158655904.txt
+ create mode 100644 attached_assets/Pasted--Using-cached-httpcore-1-0-9-py3-none-any-whl-metadata-_1771247011170.txt
+ create mode 100644 attached_assets/Pasted-Collecting-aiohappyeyeballs-2-6-1-from-r-backend-requir_1771156711065.txt
+ create mode 100644 attached_assets/Pasted-PS-C-Users-LENOVO-Documents-projets-chez-loman-Remove-I_1771154737502.txt
+ create mode 100644 attached_assets/image_1771152277591.png
+ create mode 100644 attached_assets/image_1771155750034.png
+ create mode 100644 attached_assets/image_1771156946347.png
+ create mode 100644 attached_assets/image_1771157003530.png
+ create mode 100644 attached_assets/image_1771247163765.png
+ create mode 100644 attached_assets/image_1771251189520.png
+ create mode 100644 attached_assets/image_1771251665836.png
+ create mode 100644 attached_assets/image_1771251669320.png
+ create mode 100644 backend/__init__.py
+ create mode 100644 backend/ai_service.py
+ create mode 100644 backend/requirements.txt
+ create mode 100644 backend/server.py
+ create mode 100644 backend_test.py
+ create mode 100644 design_guidelines.json
+ create mode 100644 frontend/.gitignore
+ create mode 100644 frontend/README.md
+ create mode 100644 frontend/components.json
+ create mode 100644 frontend/craco.config.js
+ create mode 100644 frontend/jsconfig.json
+ create mode 100644 frontend/package-lock.json
+ create mode 100644 frontend/package.json
+ create mode 100644 frontend/plugins/health-check/health-endpoints.js
+ create mode 100644 frontend/plugins/health-check/webpack-health-plugin.js
+ create mode 100644 frontend/plugins/visual-edits/babel-metadata-plugin.js
+ create mode 100644 frontend/plugins/visual-edits/dev-server-setup.js
+ create mode 100644 frontend/postcss.config.js
+ create mode 100644 frontend/public/index.html
+ create mode 100644 frontend/src/App.css
+ create mode 100644 frontend/src/App.js
+ create mode 100644 frontend/src/components/AdminButton.jsx
+ create mode 100644 frontend/src/components/Footer.jsx
+ create mode 100644 frontend/src/components/MenuCard.jsx
+ create mode 100644 frontend/src/components/Navbar.jsx
+ create mode 100644 frontend/src/components/ScrollToTop.jsx
+ create mode 100644 frontend/src/components/StarRating.jsx
+ create mode 100644 frontend/src/components/WhatsAppButton.jsx
+ create mode 100644 frontend/src/components/ui/accordion.jsx
+ create mode 100644 frontend/src/components/ui/alert-dialog.jsx
+ create mode 100644 frontend/src/components/ui/alert.jsx
+ create mode 100644 frontend/src/components/ui/aspect-ratio.jsx
+ create mode 100644 frontend/src/components/ui/avatar.jsx
+ create mode 100644 frontend/src/components/ui/badge.jsx
+ create mode 100644 frontend/src/components/ui/breadcrumb.jsx
+ create mode 100644 frontend/src/components/ui/button.jsx
+ create mode 100644 frontend/src/components/ui/calendar.jsx
+ create mode 100644 frontend/src/components/ui/card.jsx
+ create mode 100644 frontend/src/components/ui/carousel.jsx
+ create mode 100644 frontend/src/components/ui/checkbox.jsx
+ create mode 100644 frontend/src/components/ui/collapsible.jsx
+ create mode 100644 frontend/src/components/ui/command.jsx
+ create mode 100644 frontend/src/components/ui/context-menu.jsx
+ create mode 100644 frontend/src/components/ui/dialog.jsx
+ create mode 100644 frontend/src/components/ui/drawer.jsx
+ create mode 100644 frontend/src/components/ui/dropdown-menu.jsx
+ create mode 100644 frontend/src/components/ui/form.jsx
+ create mode 100644 frontend/src/components/ui/hover-card.jsx
+ create mode 100644 frontend/src/components/ui/input-otp.jsx
+ create mode 100644 frontend/src/components/ui/input.jsx
+ create mode 100644 frontend/src/components/ui/label.jsx
+ create mode 100644 frontend/src/components/ui/menubar.jsx
+ create mode 100644 frontend/src/components/ui/navigation-menu.jsx
+ create mode 100644 frontend/src/components/ui/pagination.jsx
+ create mode 100644 frontend/src/components/ui/popover.jsx
+ create mode 100644 frontend/src/components/ui/progress.jsx
+ create mode 100644 frontend/src/components/ui/radio-group.jsx
+ create mode 100644 frontend/src/components/ui/resizable.jsx
+ create mode 100644 frontend/src/components/ui/scroll-area.jsx
+ create mode 100644 frontend/src/components/ui/select.jsx
+ create mode 100644 frontend/src/components/ui/separator.jsx
+ create mode 100644 frontend/src/components/ui/sheet.jsx
+ create mode 100644 frontend/src/components/ui/skeleton.jsx
+ create mode 100644 frontend/src/components/ui/slider.jsx
+ create mode 100644 frontend/src/components/ui/sonner.jsx
+ create mode 100644 frontend/src/components/ui/switch.jsx
+ create mode 100644 frontend/src/components/ui/table.jsx
+ create mode 100644 frontend/src/components/ui/tabs.jsx
+ create mode 100644 frontend/src/components/ui/textarea.jsx
+ create mode 100644 frontend/src/components/ui/toast.jsx
+ create mode 100644 frontend/src/components/ui/toaster.jsx
+ create mode 100644 frontend/src/components/ui/toggle-group.jsx
+ create mode 100644 frontend/src/components/ui/toggle.jsx
+ create mode 100644 frontend/src/components/ui/tooltip.jsx
+ create mode 100644 frontend/src/hooks/use-toast.js
+ create mode 100644 frontend/src/index.css
+ create mode 100644 frontend/src/index.js
+ create mode 100644 frontend/src/lib/utils.js
+ create mode 100644 frontend/src/pages/AboutPage.jsx
+ create mode 100644 frontend/src/pages/AdminPage.jsx
+ create mode 100644 frontend/src/pages/ContactPage.jsx
+ create mode 100644 frontend/src/pages/DashboardPage.jsx
+ create mode 100644 frontend/src/pages/GalleryPage.jsx
+ create mode 100644 frontend/src/pages/HomePage.jsx
+ create mode 100644 frontend/src/pages/MenuPage.jsx
+ create mode 100644 frontend/tailwind.config.js
+ create mode 100644 main.py
+ create mode 100644 memory/.gitkeep
+ create mode 100644 memory/PRD.md
+ create mode 100644 pyproject.toml
+ create mode 100644 render.yaml
+ create mode 100644 replit.md
+ create mode 100644 test_reports/.gitkeep
+ create mode 100644 test_reports/iteration_1.json
+ create mode 100644 test_reports/iteration_2.json
+ create mode 100644 test_reports/iteration_3.json
+ create mode 100644 test_reports/pytest/.gitkeep
+ create mode 100644 test_result.md
+ create mode 100644 tests/__init__.py
+ create mode 100644 vercel.json
+PS C:\Users\LENOVO\Documents\projets\chez-loman>
+PS C:\Users\LENOVO\Documents\projets\chez-loman> # Reconnectez à GitHub
+PS C:\Users\LENOVO\Documents\projets\chez-loman> git remote add origin https://github.com/Armandodino/chez-loman.git
+PS C:\Users\LENOVO\Documents\projets\chez-loman> git branch -M main
+PS C:\Users\LENOVO\Documents\projets\chez-loman> git push -u origin main --force
+Enumerating objects: 166, done.
+Counting objects: 100% (166/166), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (155/155), done.
+Writing objects: 100% (166/166), 2.52 MiB | 1.08 MiB/s, done.
+Total 166 (delta 10), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (10/10), done.
+To https://github.com/Armandodino/chez-loman.git
+ + 78a5f03...5a3db03 main -> main (forced update)
+branch 'main' set up to track 'origin/main'.
+PS C:\Users\LENOVO\Documents\projets\chez-loman>
+PS C:\Users\LENOVO\Documents\projets\chez-loman>

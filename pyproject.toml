@@ -1,0 +1,9 @@
+[project]
+name = "chez-loman"
+version = "1.0.0"
+description = "Chez Loman - Restaurant Ivoirien"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.poetry]
+package-mode = false
