@@ -793,6 +793,53 @@ const AdminPage = () => {
     }
   };
 
+  // ==================== FONCTION GÉNÉRATION PDF ====================
+  const generatePDF = () => {
+    if (!window.jspdf) {
+        toast.error("Bibliothèque PDF non chargée.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const dateStr = new Date(cashDate).toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    doc.setFontSize(22);
+    doc.setTextColor(212, 175, 55); 
+    doc.text("CHEZ LOMAN - RESTAURANT", 105, 20, { align: "center" });
+    
+    doc.setFontSize(14);
+    doc.setTextColor(100);
+    doc.text(`Rapport de Caisse du ${dateStr}`, 105, 30, { align: "center" });
+
+    // Statistiques rapides
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    doc.text(`Ventes totales: ${cashStats?.total_sales || 0}`, 20, 45);
+    doc.text(`Recette: ${(cashStats?.total_revenue || 0).toLocaleString()} FCFA`, 20, 52);
+    doc.text(`Espèces: ${(cashStats?.cash_total || 0).toLocaleString()} F | MoMo: ${(cashStats?.mobile_money_total || 0).toLocaleString()} F`, 20, 59);
+
+    const tableRows = cashSales.map(sale => [
+      new Date(sale.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      sale.items.map(i => `${i.name} x${i.quantity}`).join(", "),
+      sale.payment_method === "especes" ? "Espèces" : "Mobile Money",
+      `${sale.total.toLocaleString()} F`
+    ]);
+
+    doc.autoTable({
+      head: [["Heure", "Articles", "Paiement", "Montant"]],
+      body: tableRows,
+      startY: 65,
+      theme: 'grid',
+      headStyles: { fillColor: [15, 46, 36], textColor: [255, 255, 255] }
+    });
+
+    doc.save(`Rapport_Loman_${cashDate}.pdf`);
+    toast.success("Rapport PDF généré !");
+  };
+
   // Helper to extract YouTube video ID
   const getYouTubeId = (url) => {
     const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
@@ -1847,20 +1894,30 @@ const AdminPage = () => {
                 <p className="text-2xl font-bold text-blue-400">{(cashStats?.mobile_money_total || 0).toLocaleString()} F</p>
               </div>
             </div>
-            
 
-            <div className="flex items-center gap-4">
-              <Input 
-                type="date" 
-                value={cashDate} 
-                onChange={(e) => {
-                  setCashDate(e.target.value);
-                  fetchCaisseData(e.target.value);
-                }} 
-                className="bg-white/5 border-white/10 text-[#F9F7F2] w-48" 
-              />
-              <span className="text-[#A3B1AD] text-sm">Plats vendus: <strong className="text-[#F9F7F2]">{cashStats?.total_dishes_sold || 0}</strong></span>
-              <span className="text-[#A3B1AD] text-sm">Ticket moyen: <strong className="text-[#D4AF37]">{(cashStats?.average_ticket || 0).toLocaleString()} F</strong></span>
+            <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
+              <div className="flex items-center gap-4">
+                <Input 
+                  type="date" 
+                  value={cashDate} 
+                  onChange={(e) => {
+                    setCashDate(e.target.value);
+                    fetchCaisseData(e.target.value);
+                  }} 
+                  className="bg-white/5 border-white/10 text-[#F9F7F2] w-48" 
+                />
+                <span className="text-[#A3B1AD] text-sm hidden md:inline">Plats vendus: <strong className="text-[#F9F7F2]">{cashStats?.total_dishes_sold || 0}</strong></span>
+              </div>
+              
+              {/* BOUTON PDF UNIQUE */}
+              <Button 
+                onClick={generatePDF} 
+                disabled={cashSales.length === 0}
+                className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F2CC8F] font-bold"
+              >
+                <FileImage size={18} className="mr-2" />
+                Rapport PDF
+              </Button>
             </div>
 
             <div className="luxury-card rounded-2xl p-6">
@@ -2026,7 +2083,15 @@ const AdminPage = () => {
                           <Trash2 size={14} />
                         </Button>
                       </div>
-                      
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Modal confirmation déconnexion */}
       <AnimatePresence>
         {showLogoutConfirm && (
@@ -2108,42 +2173,6 @@ const AdminPage = () => {
       </AnimatePresence>
     </div>
   );
-  const generatePDF = () => {
-  const { jsPDF } = window.jspdf; // On récupère l'outil depuis la fenêtre globale
-  const doc = new jsPDF();
-  
-  const dateStr = new Date(cashDate).toLocaleDateString('fr-FR', {
-    day: 'numeric', month: 'long', year: 'numeric'
-  });
-
-  // Titre
-  doc.setFontSize(22);
-  doc.setTextColor(212, 175, 55); 
-  doc.text("CHEZ LOMAN - RESTAURANT", 105, 20, { align: "center" });
-  
-  doc.setFontSize(14);
-  doc.setTextColor(100);
-  doc.text(`Rapport de Caisse du ${dateStr}`, 105, 30, { align: "center" });
-
-  // Tableau
-  const tableRows = cashSales.map(sale => [
-    new Date(sale.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-    sale.items.map(i => `${i.name} x${i.quantity}`).join(", "),
-    sale.payment_method === "especes" ? "Espèces" : "Mobile Money",
-    `${sale.total.toLocaleString()} F`
-  ]);
-
-  doc.autoTable({
-    head: [["Heure", "Articles", "Paiement", "Montant"]],
-    body: tableRows,
-    startY: 45,
-    theme: 'grid',
-    headStyles: { fillColor: [15, 46, 36] }
-  });
-
-  doc.save(`Rapport_Loman_${cashDate}.pdf`);
-  toast.success("Rapport PDF prêt !");
-};
 };
 
 export default AdminPage;
