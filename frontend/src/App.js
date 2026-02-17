@@ -6,12 +6,7 @@ import axios from "axios";
 import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./hooks/useTheme";
 import { API_URL, LOGO_IMAGE_URL } from "./config"; // Import depuis config
-
-// Components... (reste inchangé)
-// Pages... (reste inchangé)
-
-// SUPPRIMEZ les constantes exportées ici pour éviter les erreurs
-// export const API = "/api"; 
+export const API = "/api"; 
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
