@@ -1847,6 +1847,7 @@ const AdminPage = () => {
                 <p className="text-2xl font-bold text-blue-400">{(cashStats?.mobile_money_total || 0).toLocaleString()} F</p>
               </div>
             </div>
+            
 
             <div className="flex items-center gap-4">
               <Input 
@@ -2025,6 +2026,13 @@ const AdminPage = () => {
                           <Trash2 size={14} />
                         </Button>
                       </div>
+                      <div><Button 
+  onClick={generatePDF} 
+  className="bg-[#D4AF37] text-black font-bold hover:bg-white transition-all"
+>
+  <FileImage size={18} className="mr-2" />
+  Télécharger le Rapport PDF
+</Button></div>
                     </div>
                   ))}
                 </div>
@@ -2116,5 +2124,40 @@ const AdminPage = () => {
     </div>
   );
 };
+const generatePDF = () => {
+  const { jsPDF } = window.jspdf; // On récupère l'outil depuis la fenêtre globale
+  const doc = new jsPDF();
+  
+  const dateStr = new Date(cashDate).toLocaleDateString('fr-FR', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
 
+  // Titre
+  doc.setFontSize(22);
+  doc.setTextColor(212, 175, 55); 
+  doc.text("CHEZ LOMAN - RESTAURANT", 105, 20, { align: "center" });
+  
+  doc.setFontSize(14);
+  doc.setTextColor(100);
+  doc.text(`Rapport de Caisse du ${dateStr}`, 105, 30, { align: "center" });
+
+  // Tableau
+  const tableRows = cashSales.map(sale => [
+    new Date(sale.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    sale.items.map(i => `${i.name} x${i.quantity}`).join(", "),
+    sale.payment_method === "especes" ? "Espèces" : "Mobile Money",
+    `${sale.total.toLocaleString()} F`
+  ]);
+
+  doc.autoTable({
+    head: [["Heure", "Articles", "Paiement", "Montant"]],
+    body: tableRows,
+    startY: 45,
+    theme: 'grid',
+    headStyles: { fillColor: [15, 46, 36] }
+  });
+
+  doc.save(`Rapport_Loman_${cashDate}.pdf`);
+  toast.success("Rapport PDF prêt !");
+};
 export default AdminPage;
