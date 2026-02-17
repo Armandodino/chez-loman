@@ -1,9 +1,38 @@
+
 import { useEffect, useState } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./hooks/useTheme";
+import { API_URL, LOGO_IMAGE_URL } from "./config"; // Import depuis config
+
+// Components... (reste inchangé)
+// Pages... (reste inchangé)
+
+// SUPPRIMEZ les constantes exportées ici pour éviter les erreurs
+// export const API = "/api"; 
+
+function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    const seedData = async () => {
+      try {
+        // Utilisation de API_URL
+        await axios.post(`${API_URL}/seed`);
+      } catch (e) {
+        console.log("Data may already be seeded");
+      } finally {
+        clearTimeout(timer);
+        setIsLoading(false);
+      }
+    };
+    seedData();
+    return () => clearTimeout(timer);
+  }, []);
+
 
 // Components
 import Navbar from "./components/Navbar";
