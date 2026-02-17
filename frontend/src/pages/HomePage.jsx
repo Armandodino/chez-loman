@@ -3,33 +3,37 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { API } from "../App";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import MenuCard from "../components/MenuCard";
 import StarRating from "../components/StarRating";
-import { ArrowRight, MapPin, Clock, Sparkles, Send, CheckCircle, ChevronLeft, ChevronRight, Phone, Music, BookOpen, Bell } from "lucide-react";
+// MODIF: Ajout des icônes Music, BookOpen et Bell pour les pubs mixtes
+import { ArrowRight, MapPin, Clock, Sparkles, Send, CheckCircle, ChevronLeft, ChevronRight, Music, BookOpen, Bell, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
-// Icônes personnalisées
+// TikTok icon component
 const TikTokIcon = ({ size = 24, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
-);
-const FacebookIcon = ({ size = 24, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+  </svg>
 );
 
-const PromoCarousel = ({ promotions = [] }) => {
+// Facebook icon component
+const FacebookIcon = ({ size = 24, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const PromoCarousel = ({ promotions }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
   const nextSlide = useCallback(() => {
-    if (promotions.length === 0) return;
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % promotions.length);
   }, [promotions.length]);
 
   const prevSlide = useCallback(() => {
-    if (promotions.length === 0) return;
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + promotions.length) % promotions.length);
   }, [promotions.length]);
@@ -40,38 +44,103 @@ const PromoCarousel = ({ promotions = [] }) => {
     return () => clearInterval(timer);
   }, [nextSlide, promotions.length]);
 
-  if (!promotions || promotions.length === 0) return null;
   const promo = promotions[currentIndex];
 
+  const variants = {
+    enter: (dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
+  };
+
+  // MODIF: Fonction pour choisir l'icône selon le type de pub
   const getPromoIcon = (type) => {
     const t = type?.toLowerCase();
-    if (t === "concert") return <Music size={14} />;
-    if (t === "biblique") return <BookOpen size={14} />;
-    return <Bell size={14} />;
+    if (t === "concert") return <Music size={18} className="text-[#D4AF37]" />;
+    if (t === "biblique") return <BookOpen size={18} className="text-[#D4AF37]" />;
+    if (t === "annonce") return <Bell size={18} className="text-[#D4AF37]" />;
+    return <Sparkles size={18} className="text-[#D4AF37]" />;
   };
 
   return (
-    <div className="relative group">
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0A1F1A] shadow-xl h-[350px] md:h-[450px]">
+    <div className="relative">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0A1F1A]" style={{ minHeight: "320px" }}>
         <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div key={currentIndex} custom={direction} initial={{ x: 300, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -300, opacity: 0 }} transition={{ duration: 0.4 }} className="absolute inset-0 w-full h-full">
-            {promo?.image_url && (
-              <div className="relative w-full h-full">
-                <img src={promo.image_url} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#05100D] via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-left">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-[#D4AF37] text-[#05100D] p-1 rounded-full">{getPromoIcon(promo.promo_type)}</div>
-                    <span className="text-[#D4AF37] text-[10px] md:text-xs font-bold uppercase bg-black/50 px-2 py-1 rounded">{promo.promo_type || "Info"}</span>
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            {promo.image_url ? (
+              <div className="relative">
+                <img
+                  src={promo.image_url.startsWith('/api') ? promo.image_url : promo.image_url}
+                  alt={promo.title}
+                  className="w-full h-[250px] md:h-[350px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-left">
+                  <div className="flex items-center gap-2 mb-2">
+                    {/* MODIF: Icône dynamique */}
+                    {getPromoIcon(promo.promo_type)}
+                    <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-wider">
+                      {promo.promo_type || "Info"}
+                    </span>
                   </div>
-                  <h3 className="text-2xl md:text-5xl font-bold text-white mb-2">{promo.title}</h3>
-                  <p className="text-white/80 text-sm md:text-xl line-clamp-2">{promo.description}</p>
+                  <h3 className="text-xl md:text-2xl font-bold text-[#F9F7F2] mb-2">{promo.title}</h3>
+                  <p className="text-[#F9F7F2]/80 text-sm md:text-base max-w-2xl">{promo.description}</p>
+                  {(promo.start_date || promo.end_date) && (
+                    <p className="text-[#D4AF37] text-xs mt-3 font-bold uppercase">
+                       {promo.end_date && `Le ${new Date(promo.end_date).toLocaleDateString('fr-FR')}`}
+                    </p>
+                  )}
+                  <a
+                    href="https://wa.me/2250709508819?text=Bonjour, je suis intéressé par cette annonce"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-4 bg-[#D4AF37] text-[#0F2E24] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#C4A030] transition-colors"
+                  >
+                    En Profiter
+                  </a>
                 </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[250px] md:h-[350px] p-8 text-center bg-gradient-to-br from-[#D4AF37]/10 to-[#1A4D3E]/30">
+                {getPromoIcon(promo.promo_type)}
+                <h3 className="text-xl md:text-2xl font-bold text-[#F9F7F2] mt-4 mb-3">{promo.title}</h3>
+                <p className="text-[#A3B1AD] text-sm md:text-base max-w-lg">{promo.description}</p>
+                <a
+                  href="https://wa.me/2250709508819"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-5 bg-[#D4AF37] text-[#0F2E24] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#C4A030] transition-colors"
+                >
+                  En Profiter
+                </a>
               </div>
             )}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {promotions.length > 1 && (
+        <>
+          <button onClick={prevSlide} className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors z-10">
+            <ChevronLeft size={20} />
+          </button>
+          <button onClick={nextSlide} className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors z-10">
+            <ChevronRight size={20} />
+          </button>
+          <div className="flex justify-center gap-2 mt-4">
+            {promotions.map((_, idx) => (
+              <button key={idx} onClick={() => { setDirection(idx > currentIndex ? 1 : -1); setCurrentIndex(idx); }} className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === currentIndex ? "bg-[#D4AF37] w-6" : "bg-white/30 hover:bg-white/50"}`} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -89,151 +158,247 @@ const HomePage = () => {
   const [commentSubmitted, setCommentSubmitted] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
 
+  const getYouTubeId = (url) => {
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    return match ? match[1] : null;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [feat, daily, rev, vid, promo, hero] = await Promise.all([
-          axios.get(`${API}/menu/featured`).catch(() => ({ data: [] })),
-          axios.get(`${API}/daily-menu`).catch(() => ({ data: null })),
-          axios.get(`${API}/reviews`).catch(() => ({ data: [] })),
-          axios.get(`${API}/videos?active_only=true`).catch(() => ({ data: [] })),
-          axios.get(`${API}/promotions?active_only=true`).catch(() => ({ data: [] })),
-          axios.get(`${API}/hero-content`).catch(() => ({ data: null }))
+        const [featuredRes, dailyRes, reviewsRes, videosRes, promosRes, heroRes] = await Promise.all([
+          axios.get(`${API}/menu/featured`),
+          axios.get(`${API}/daily-menu`),
+          axios.get(`${API}/reviews`),
+          axios.get(`${API}/videos?active_only=true`),
+          axios.get(`${API}/promotions?active_only=true`),
+          axios.get(`${API}/hero-content`)
         ]);
-        setFeaturedItems(feat.data || []);
-        setDailyMenu(daily.data);
-        setReviews((rev.data || []).slice(0, 3));
-        setVideos((vid.data || []).slice(0, 3));
-        setPromotions(promo.data || []);
-        setHeroContent(hero.data);
-      } catch (e) { console.error(e); } finally { setLoading(false); }
+        setFeaturedItems(featuredRes.data);
+        setDailyMenu(dailyRes.data);
+        setReviews(reviewsRes.data.slice(0, 3));
+        setVideos(videosRes.data.slice(0, 3));
+        setPromotions(promosRes.data);
+        setHeroContent(heroRes.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!commentName.trim() || !commentText.trim()) return;
+    if (!commentName.trim() || !commentText.trim()) {
+      toast.error("Veuillez remplir tous les champs");
+      return;
+    }
     setSubmittingComment(true);
     try {
       await axios.post(`${API}/reviews`, { author: commentName.trim(), comment: commentText.trim() });
-      setCommentSubmitted(true); setCommentName(""); setCommentText("");
+      setCommentSubmitted(true);
+      setCommentName("");
+      setCommentText("");
+      toast.success("Merci pour votre commentaire !");
       setTimeout(() => setCommentSubmitted(false), 5000);
-    } catch (e) { toast.error("Erreur d'envoi"); } finally { setSubmittingComment(false); }
-  };
-
-  const getYouTubeId = (url) => {
-    if (!url) return null;
-    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-    return match ? match[1] : null;
+    } catch (error) {
+      toast.error("Erreur lors de l'envoi");
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   return (
-    <div className="bg-[#05100D] min-h-screen">
-      {/* HERO */}
-      <section className="relative min-h-[100dvh] flex items-center">
+    <div className="bg-[#05100D]" data-testid="home-page">
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center" data-testid="hero-section">
         <div className="absolute inset-0">
-          <img src={heroContent?.background_image || "https://customer-assets.emergentagent.com/job_loman-restaurant/artifacts/jde9y3pb_chl.jpg"} className="w-full h-full object-cover" alt="" />
-          <div className="absolute inset-0 bg-black/60"></div>
+          <img src={heroContent?.background_image || "https://customer-assets.emergentagent.com/job_loman-restaurant/artifacts/jde9y3pb_chl.jpg"} alt="Restaurant ambiance" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 hero-overlay"></div>
+          <div className="absolute inset-0 noise-overlay"></div>
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 pt-20">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest mb-4 block">Restaurant d'Exception</span>
-            <h1 className="text-4xl md:text-8xl font-accent italic text-white mb-6">
-              {heroContent?.title_line1 || "Ici c'est manger"}<br/><span className="text-[#D4AF37]">{heroContent?.title_line2 || "bien hein"}</span>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 py-32">
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: "easeOut" }} className="max-w-3xl">
+            <span className="inline-block text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-6">Restaurant Ivoirien d'Exception</span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-accent italic text-[#F9F7F2] leading-[0.9] mb-6">
+              {heroContent?.title_line1 || "Ici c'est manger"}<br/>
+              <span className="text-[#D4AF37]">{heroContent?.title_line2 || "bien hein"}</span>
             </h1>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/menu"><Button className="btn-gold px-8 py-6">Découvrir la Carte</Button></Link>
-              <a href="tel:+2250709508819"><Button className="bg-white/10 border border-white/20 text-white px-8 py-6">+225 07 09 50 88 19</Button></a>
+            <p className="text-lg md:text-xl text-[#A3B1AD] max-w-xl mb-10 leading-relaxed">{heroContent?.description}</p>
+            <div className="flex flex-wrap gap-4">
+              <a href="https://wa.me/2250709508819?text=Bonjour, je souhaite réserver une table" target="_blank" rel="noopener noreferrer"><Button className="btn-gold text-base">Réserver une Table</Button></a>
+              <Link to="/menu"><Button className="btn-outline-gold text-base">Découvrir la Carte</Button></Link>
+            </div>
+            <div className="flex flex-wrap gap-8 mt-16">
+              <div className="flex items-center gap-3 text-[#A3B1AD]/70"><MapPin size={16} className="text-[#D4AF37]" /><span className="text-sm">Yopougon, Abidjan</span></div>
+              <div className="flex items-center gap-3 text-[#A3B1AD]/70"><Clock size={16} className="text-[#D4AF37]" /><span className="text-sm">11h – 22h</span></div>
+              <div className="flex items-center gap-3">
+                <a href="https://www.facebook.com/profile.php?id=61574715038273" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0F2E24] transition-all duration-300"><FacebookIcon size={16} /></a>
+                <a href="https://www.tiktok.com/@lomanschadrac?lang=fr" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0F2E24] transition-all duration-300"><TikTokIcon size={16} /></a>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* MENU DU JOUR */}
-      {dailyMenu && dailyMenu.items && Array.isArray(dailyMenu.items) && (
-        <section className="py-20 bg-black/20">
-          <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-5xl text-white mb-6 font-display">Menu du Jour</h2>
-              <div className="divider-gold mb-8"></div>
-              <ul className="space-y-4 mb-10">
-                {dailyMenu.items.map((item, i) => (
-                  <li key={i} className="flex items-center gap-4 text-white/80 text-lg"><span className="w-2 h-2 bg-[#D4AF37] rounded-full"></span>{item}</li>
-                ))}
-              </ul>
-              <a href="https://wa.me/2250709508819"><Button className="btn-gold px-10 py-6">Commander (+225)</Button></a>
+      {/* Daily Menu Section */}
+      {dailyMenu && (
+        <section className="py-24 md:py-32 relative" data-testid="daily-menu-section">
+          <div className="absolute inset-0 bg-[#1A4D3E]/20"></div>
+          <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+                  <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-4 block">Aujourd'hui</span>
+                  <h2 className="text-4xl md:text-5xl text-[#F9F7F2] mb-6">Menu du Jour</h2>
+                  <div className="divider-gold mb-8"></div>
+                  {dailyMenu.special_message && <p className="text-[#D4AF37] font-accent italic text-lg mb-8">{dailyMenu.special_message}</p>}
+                  <ul className="space-y-4 mb-10">
+                    {dailyMenu.items.map((item, index) => (
+                      <li key={index} className="flex items-center gap-4 text-[#F9F7F2]/80"><span className="w-2 h-2 rounded-full bg-[#D4AF37]"></span><span className="text-lg">{item}</span></li>
+                    ))}
+                  </ul>
+                  <a href="https://wa.me/2250709508819" target="_blank" rel="noopener noreferrer"><Button className="btn-gold">Commander (+225)</Button></a>
+                </motion.div>
+              </div>
+              <div className="relative">
+                {/* MODIF: Image dynamique venant de l'Admin ou Image par défaut */}
+                <img 
+                  src={dailyMenu.image_url || "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg"} 
+                  alt="Affiche du menu" 
+                  className="rounded-2xl shadow-2xl w-full h-[400px] md:h-[550px] object-cover border border-[#D4AF37]/20" 
+                />
+                <div className="absolute -bottom-6 -right-6 glass p-6 rounded-xl border border-white/10">
+                  <Sparkles className="text-[#D4AF37] mb-2" size={24} />
+                  <p className="text-[#F9F7F2] font-semibold text-sm uppercase tracking-widest">Fait maison</p>
+                </div>
+              </div>
             </div>
-            <img src={dailyMenu.image_url || "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg"} className="rounded-3xl shadow-2xl h-[400px] object-cover border border-white/10" alt="" />
           </div>
         </section>
       )}
 
-      {/* PUBLICITÉS */}
+      {/* Featured Dishes Section */}
+      <section className="py-24 md:py-32" data-testid="featured-section">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-16">
+            <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-4 block">Nos Spécialités</span>
+            <h2 className="text-4xl md:text-5xl text-[#F9F7F2] mb-4">Plats Signature</h2>
+            <div className="divider-gold mx-auto"></div>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredItems.slice(0, 6).map((item, index) => (
+              <motion.div key={item.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}><MenuCard item={item} /></motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-16"><Link to="/menu"><Button className="btn-outline-gold group">Voir Toute la Carte <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} /></Button></Link></div>
+        </div>
+      </section>
+
+      {/* About History Section */}
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/smtxt9or_chl.jpg" alt="Notre équipe" className="w-full h-full object-cover opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#05100D] via-[#05100D]/90 to-[#05100D]/70"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+          <div className="max-w-2xl">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+              <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-4 block">Notre Histoire</span>
+              <h2 className="text-4xl md:text-5xl text-[#F9F7F2] mb-6">L'Art de la Cuisine Ivoirienne</h2>
+              <div className="divider-gold mb-8"></div>
+              <p className="text-lg text-[#A3B1AD] leading-relaxed mb-8">Chez Loman, nous perpétuons la tradition culinaire ivoirienne avec passion et excellence. Chaque plat raconte une histoire.</p>
+              <p className="text-2xl font-accent italic text-[#D4AF37] mb-10">"Viens goûter, tu vas comprendre"</p>
+              <Link to="/about"><Button className="btn-outline-gold">Découvrir Notre Histoire</Button></Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Actus & Publicités Section */}
       {promotions.length > 0 && (
-        <section className="py-20 bg-[#0F2E24]/20">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest">Actualités</span>
-            <h2 className="text-3xl md:text-4xl text-white mt-2 mb-10 font-display">Événements & Infos</h2>
+        <section className="py-16 md:py-20 bg-gradient-to-b from-[#0A1F1A] to-[#0F2E24]" data-testid="promo-banner">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 text-center">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
+              <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em]">Actualités</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#F9F7F2] mt-3 uppercase tracking-tighter">Événements & Infos</h2>
+            </motion.div>
             <PromoCarousel promotions={promotions} />
           </div>
         </section>
       )}
 
-      {/* SIGNATURE */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center mb-12">
-          <h2 className="text-3xl md:text-5xl text-white font-display">Plats Signature</h2>
-          <div className="divider-gold mx-auto"></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {featuredItems.map(item => <MenuCard key={item.id} item={item} />)}
-        </div>
-      </section>
-
-      {/* VIDEOS */}
+      {/* Videos Section */}
       {videos.length > 0 && (
-        <section className="py-20">
-          <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {videos.map(v => (
-              <div key={v.id} className="rounded-2xl overflow-hidden bg-white/5">
-                {v.video_type === "youtube" ? <iframe className="w-full aspect-video" src={`https://www.youtube.com/embed/${getYouTubeId(v.video_url)}`} frameBorder="0" allowFullScreen></iframe> : <video src={v.video_url} controls className="w-full aspect-video object-cover" />}
-                <div className="p-4 text-white font-semibold">{v.title}</div>
-              </div>
-            ))}
+        <section className="py-24 md:py-32" data-testid="videos-section">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 text-center">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
+              <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-4 block">En Vidéo</span>
+              <h2 className="text-4xl md:text-5xl text-[#F9F7F2]">Découvrez Notre Ambiance</h2>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+              {videos.map((video, index) => (
+                <motion.div key={video.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }} className="luxury-card rounded-2xl overflow-hidden shadow-2xl">
+                  {video.video_type === "youtube" ? <div className="aspect-video"><iframe src={`https://www.youtube.com/embed/${getYouTubeId(video.video_url)}`} className="w-full h-full" allowFullScreen title={video.title}></iframe></div> : <video src={video.video_url} controls className="w-full aspect-video object-cover"></video>}
+                  <div className="p-5"><h3 className="text-[#F9F7F2] font-semibold">{video.title}</h3>{video.description && <p className="text-sm text-[#A3B1AD] mt-2 line-clamp-2">{video.description}</p>}</div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* REVIEWS */}
-      <section className="py-20 bg-[#0F2E24]/30">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {reviews.map(r => (
-            <div key={r.id} className="luxury-card p-8 rounded-2xl">
-              <StarRating rating={r.rating} />
-              <p className="text-white/70 italic mt-4">"{r.comment}"</p>
-              <p className="text-[#D4AF37] mt-4 font-bold">{r.author}</p>
-            </div>
-          ))}
+      {/* Reviews Section */}
+      <section className="py-24 md:py-32 bg-[#0F2E24]/30" data-testid="reviews-section">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 text-center">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
+            <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-4 block">Témoignages</span>
+            <h2 className="text-4xl md:text-5xl text-[#F9F7F2]">Ce Qu'ils en Disent</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+            {reviews.map((review, index) => (
+              <motion.div key={review.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }} className="luxury-card p-8 rounded-2xl">
+                <StarRating rating={review.rating} />
+                <p className="text-[#F9F7F2]/80 mt-6 mb-8 font-accent italic text-lg leading-relaxed">"{review.comment}"</p>
+                <div className="flex items-center gap-4"><div className="w-12 h-12 rounded-full bg-[#1A4D3E] flex items-center justify-center text-[#D4AF37] font-semibold">{review.author.charAt(0)}</div><span className="text-[#F9F7F2] font-medium">{review.author}</span></div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* COMMENT FORM */}
-      <section className="py-20 max-w-3xl mx-auto px-4 text-center">
-        <h2 className="text-3xl text-white mb-10 font-display">Laissez un Commentaire</h2>
-        <form onSubmit={handleCommentSubmit} className="space-y-4">
-          <Input value={commentName} onChange={(e)=>setCommentName(e.target.value)} placeholder="Nom" className="input-luxury" required />
-          <textarea value={commentText} onChange={(e)=>setCommentText(e.target.value)} placeholder="Message" className="w-full input-luxury rounded-xl p-4 min-h-[120px]" required />
-          <Button type="submit" disabled={submittingComment} className="btn-gold w-full py-6">Envoyer</Button>
-        </form>
+      {/* Formulaire Avis Section */}
+      <section className="py-24 md:py-32" data-testid="comment-section">
+        <div className="max-w-3xl mx-auto px-6 md:px-12 text-center">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
+            <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-4 block">Votre Avis Compte</span>
+            <h2 className="text-4xl md:text-5xl text-[#F9F7F2]">Laissez un Commentaire</h2>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }}>
+            {commentSubmitted ? <div className="luxury-card rounded-2xl p-10"><CheckCircle className="mx-auto text-[#D4AF37] mb-4" size={48} /><h3 className="text-xl text-[#F9F7F2] font-semibold mb-2">Merci pour votre commentaire !</h3></div> : (
+              <form onSubmit={handleCommentSubmit} className="luxury-card rounded-2xl p-8 md:p-10 space-y-6 text-left shadow-2xl">
+                <div><label className="block text-[#A3B1AD] text-xs mb-2 uppercase tracking-widest">Nom et Prénoms</label><input type="text" value={commentName} onChange={(e) => setCommentName(e.target.value)} placeholder="Ex: Kouadio Aman Jean" className="w-full input-luxury rounded-xl px-5 py-4" required /></div>
+                <div><label className="block text-[#A3B1AD] text-xs mb-2 uppercase tracking-widest">Votre Commentaire</label><textarea value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Partagez votre expérience..." rows={4} className="w-full input-luxury rounded-xl px-5 py-4 resize-none" required /></div>
+                <Button type="submit" disabled={submittingComment} className="btn-gold w-full text-base flex items-center justify-center gap-2">{submittingComment ? "Envoi..." : <><Send size={18} /> Envoyer l'avis</>}</Button>
+              </form>
+            )}
+          </motion.div>
+        </div>
       </section>
 
-      {/* CTA FINAL */}
-      <section className="py-20 bg-[#1A4D3E] text-center text-white">
-        <h2 className="text-3xl md:text-5xl font-accent italic mb-6">Une Table Vous Attend</h2>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a href="https://wa.me/2250709508819"><Button className="bg-[#D4AF37] text-black rounded-full px-10 py-6 font-bold">WhatsApp (+225)</Button></a>
-          <a href="tel:+2250709508819"><Button className="bg-transparent border border-white/20 rounded-full px-10 py-6">Appeler au +225</Button></a>
+      {/* CTA Final Section */}
+      <section className="py-24 md:py-32 relative text-center" data-testid="cta-section">
+        <div className="absolute inset-0 bg-[#1A4D3E]"></div>
+        <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="text-4xl md:text-6xl font-accent italic text-[#F9F7F2] mb-6">Une Table Vous Attend</h2>
+            <div className="flex flex-wrap justify-center gap-4 mt-10">
+              <a href="https://wa.me/2250709508819" target="_blank" rel="noopener noreferrer"><Button className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F9F7F2] rounded-full px-10 py-6 text-lg font-bold">WhatsApp (+225)</Button></a>
+              <a href="tel:+2250709508819"><Button className="bg-transparent border border-white/30 text-[#F9F7F2] hover:bg-white/10 rounded-full px-10 py-6 text-lg font-medium flex items-center gap-2"><Phone size={18}/> Appeler le +225 07 09 50 88 19</Button></a>
+            </div>
+          </motion.div>
         </div>
       </section>
     </div>

@@ -7,21 +7,27 @@ import { Textarea } from "../components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Switch } from "../components/ui/switch";
 import { toast } from "sonner";
-import { Plus, Trash2, Calendar, Image, Utensils, RefreshCw, Video, Megaphone, LogOut, Lock, User, Eye, EyeOff, X, Upload, Link, FileImage, Home, LayoutDashboard, MessageSquare, Check, ShoppingCart, Pencil, ShieldAlert } from "lucide-react";
+import { Plus, Trash2, Calendar, Image, Utensils, RefreshCw, Video, Megaphone, LogOut, Lock, User, Eye, EyeOff, X, Upload, Link, FileImage, Home, LayoutDashboard, MessageSquare, Check, XCircle, ShoppingCart, Pencil, ShieldAlert } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
+// DÉFINITION DE L'API EN DUR POUR ÉVITER LES ERREURS D'IMPORT
 const API = "/api";
 
 const AdminPage = () => {
+  // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
+
+  // Admin state
   const [activeTab, setActiveTab] = useState("accueil");
   const [loading, setLoading] = useState(true);
+  
+  // Data states
   const [dailyMenus, setDailyMenus] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -29,6 +35,8 @@ const AdminPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [heroContent, setHeroContent] = useState(null);
   const [allReviews, setAllReviews] = useState([]);
+
+  // Caisse state
   const [cashSales, setCashSales] = useState([]);
   const [cashStats, setCashStats] = useState(null);
   const [cashItems, setCashItems] = useState([{ name: "", quantity: 1, price: 0 }]);
@@ -36,25 +44,35 @@ const AdminPage = () => {
   const [cashNote, setCashNote] = useState("");
   const [submittingCash, setSubmittingCash] = useState(false);
   const [cashDate, setCashDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // DELETE SECURITY MODAL STATE
   const [showDeleteAuth, setShowDeleteAuth] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState(null);
   const [deletePassword, setDeletePassword] = useState("");
+
+  // Daily Menu Form
   const [menuDate, setMenuDate] = useState(new Date().toISOString().split('T')[0]);
   const [menuItemsList, setMenuItemsList] = useState([""]);
   const [specialMessage, setSpecialMessage] = useState("");
+  
+  // MODIFS : Daily Menu Image States
   const [menuImageUrl, setMenuImageUrl] = useState("");
   const [menuUploadMode, setMenuUploadMode] = useState("url");
   const [menuFile, setMenuFile] = useState(null);
   const [menuPreview, setMenuPreview] = useState("");
   const menuFileRef = useRef(null);
+
+  // Photo Form
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoCaption, setPhotoCaption] = useState("");
   const [photoCategory, setPhotoCategory] = useState("restaurant");
-  const [photoUploadMode, setPhotoUploadMode] = useState("url");
+  const [photoUploadMode, setPhotoUploadMode] = useState("url"); // "url" or "file"
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoFileRef = useRef(null);
+
+  // Video Form
   const [videoTitle, setVideoTitle] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [videoType, setVideoType] = useState("youtube");
@@ -63,16 +81,21 @@ const AdminPage = () => {
   const [videoFile, setVideoFile] = useState(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const videoFileRef = useRef(null);
+
+  // Promotion Form
   const [promoTitle, setPromoTitle] = useState("");
   const [promoDescription, setPromoDescription] = useState("");
   const [promoImage, setPromoImage] = useState("");
-  const [promoType, setPromoType] = useState("Promotion");
+  const [promoType, setPromoType] = useState("banner");
+  const [promoStartDate, setPromoStartDate] = useState("");
   const [promoEndDate, setPromoEndDate] = useState("");
   const [promoUploadMode, setPromoUploadMode] = useState("url");
   const [promoFile, setPromoFile] = useState(null);
   const [promoPreview, setPromoPreview] = useState("");
   const [uploadingPromo, setUploadingPromo] = useState(false);
   const promoFileRef = useRef(null);
+
+  // Hero Content Form
   const [heroTitleLine1, setHeroTitleLine1] = useState("");
   const [heroTitleLine2, setHeroTitleLine2] = useState("");
   const [heroDescription, setHeroDescription] = useState("");
@@ -82,6 +105,8 @@ const AdminPage = () => {
   const [heroPreview, setHeroPreview] = useState("");
   const [savingHero, setSavingHero] = useState(false);
   const heroFileRef = useRef(null);
+
+  // Menu Item Form (Add/Edit)
   const [showMenuForm, setShowMenuForm] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState(null);
   const [menuItemName, setMenuItemName] = useState("");
@@ -95,10 +120,11 @@ const AdminPage = () => {
   const [menuItemFeatured, setMenuItemFeatured] = useState(false);
   const [submittingMenuItem, setSubmittingMenuItem] = useState(false);
   const menuItemFileRef = useRef(null);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const MENU_CATEGORIES = ["Plats Ivoiriens", "Grillades", "Boissons", "Spécialités", "Entrées", "Desserts"];
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
+  // Check authentication on mount
   useEffect(() => {
     checkAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,9 +135,15 @@ const AdminPage = () => {
     if (token) {
       try {
         const response = await axios.post(`${API}/admin/verify?token=${token}`);
-        if (response.data.valid) { setIsAuthenticated(true); fetchData(); }
-        else { localStorage.removeItem("adminToken"); }
-      } catch (error) { localStorage.removeItem("adminToken"); }
+        if (response.data.valid) {
+          setIsAuthenticated(true);
+          fetchData();
+        } else {
+          localStorage.removeItem("adminToken");
+        }
+      } catch (error) {
+        localStorage.removeItem("adminToken");
+      }
     }
     setIsCheckingAuth(false);
   };
@@ -119,33 +151,76 @@ const AdminPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginLoading(true);
+    
     try {
-      const response = await axios.post(`${API}/admin/login`, { username, password });
+      const response = await axios.post(`${API}/admin/login`, {
+        username,
+        password
+      });
+      
       if (response.data.success) {
         localStorage.setItem("adminToken", response.data.token);
         setIsAuthenticated(true);
-        toast.success("Bienvenue Armando !");
+        toast.success("Connexion réussie!");
         fetchData();
       }
-    } catch (error) { toast.error("Accès refusé"); } finally { setLoginLoading(false); }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erreur de connexion");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      await axios.post(`${API}/admin/logout`);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    localStorage.removeItem("adminToken");
+    setIsAuthenticated(false);
+    setUsername("");
+    setPassword("");
+    setShowLogoutConfirm(false);
+    toast.success("Déconnexion réussie");
   };
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const [menusRes, photosRes, videosRes, promosRes, menuItemsRes, heroRes, reviewsRes] = await Promise.all([
-        axios.get(`${API}/daily-menus`), axios.get(`${API}/gallery`), axios.get(`${API}/videos`),
-        axios.get(`${API}/promotions`), axios.get(`${API}/menu`), axios.get(`${API}/hero-content`),
+        axios.get(`${API}/daily-menus`),
+        axios.get(`${API}/gallery`),
+        axios.get(`${API}/videos`),
+        axios.get(`${API}/promotions`),
+        axios.get(`${API}/menu`),
+        axios.get(`${API}/hero-content`),
         axios.get(`${API}/reviews/all`)
       ]);
-      setDailyMenus(menusRes.data); setPhotos(photosRes.data); setVideos(videosRes.data);
-      setPromotions(promosRes.data); setMenuItems(menuItemsRes.data); setAllReviews(reviewsRes.data);
+      setDailyMenus(menusRes.data);
+      setPhotos(photosRes.data);
+      setVideos(videosRes.data);
+      setPromotions(promosRes.data);
+      setMenuItems(menuItemsRes.data);
+      setAllReviews(reviewsRes.data);
       setHeroContent(heroRes.data);
+      // Populate hero form
       if (heroRes.data) {
-        setHeroTitleLine1(heroRes.data.title_line1 || ""); setHeroTitleLine2(heroRes.data.title_line2 || "");
-        setHeroDescription(heroRes.data.description || ""); setHeroBackgroundImage(heroRes.data.background_image || "");
+        setHeroTitleLine1(heroRes.data.title_line1 || "");
+        setHeroTitleLine2(heroRes.data.title_line2 || "");
+        setHeroDescription(heroRes.data.description || "");
+        setHeroBackgroundImage(heroRes.data.background_image || "");
       }
-    } catch (error) { toast.error("Erreur de chargement"); } finally { setLoading(false); }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Erreur lors du chargement des données");
+    } finally {
+      setLoading(false);
+    }
     fetchCaisseData();
   };
 
@@ -156,436 +231,1884 @@ const AdminPage = () => {
         axios.get(`${API}/caisse/ventes?date=${targetDate}`),
         axios.get(`${API}/caisse/stats?date=${targetDate}`)
       ]);
-      setCashSales(salesRes.data); setCashStats(statsRes.data);
-    } catch (error) {}
-  };
-
-  const uploadFile = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await axios.post(`${API}/upload`, formData, { headers: { "Content-Type": "multipart/form-data" } });
-    return response.data.url;
+      setCashSales(salesRes.data);
+      setCashStats(statsRes.data);
+    } catch (error) {
+      console.error("Error fetching caisse data:", error);
+    }
   };
 
   const handleCashSaleSubmit = async (e) => {
     e.preventDefault();
     const validItems = cashItems.filter(item => item.name.trim() && item.quantity > 0 && item.price > 0);
-    if (validItems.length === 0) return toast.error("Ajoutez un produit");
+    if (validItems.length === 0) {
+      toast.error("Ajoutez au moins un plat valide");
+      return;
+    }
     const total = validItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setSubmittingCash(true);
     try {
-      await axios.post(`${API}/caisse/vente`, { items: validItems, total, payment_method: cashPaymentMethod, note: cashNote || null });
-      toast.success("Vente validée"); setCashItems([{ name: "", quantity: 1, price: 0 }]); setCashNote(""); fetchCaisseData();
-    } catch (error) { toast.error("Échec"); } finally { setSubmittingCash(false); }
+      await axios.post(`${API}/caisse/vente`, {
+        items: validItems,
+        total,
+        payment_method: cashPaymentMethod,
+        note: cashNote || null
+      });
+      toast.success("Vente enregistrée!");
+      setCashItems([{ name: "", quantity: 1, price: 0 }]);
+      setCashNote("");
+      fetchCaisseData();
+    } catch (error) {
+      toast.error("Erreur lors de l'enregistrement");
+    } finally {
+      setSubmittingCash(false);
+    }
+  };
+
+  const addCashItem = () => setCashItems([...cashItems, { name: "", quantity: 1, price: 0 }]);
+  const removeCashItem = (index) => setCashItems(cashItems.filter((_, i) => i !== index));
+  const updateCashItem = (index, field, value) => {
+    const newItems = [...cashItems];
+    newItems[index] = { ...newItems[index], [field]: field === "name" ? value : Number(value) };
+    setCashItems(newItems);
+  };
+
+  // --- DELETE CONFIRMATION HANDLERS ---
+  const requestDeleteSale = (saleId) => {
+    setSaleToDelete(saleId);
+    setDeletePassword("");
+    setShowDeleteAuth(true);
   };
 
   const confirmDeleteSale = async () => {
-    if (deletePassword !== "Jesusestroi@") return toast.error("Code erroné");
+    if (deletePassword !== "Jesusestroi@") {
+      toast.error("Mot de passe incorrect !");
+      return;
+    }
+
     try {
       await axios.delete(`${API}/caisse/vente/${saleToDelete}`);
-      toast.success("Vente annulée"); fetchCaisseData(); setShowDeleteAuth(false);
-    } catch (error) { toast.error("Erreur"); }
+      toast.success("Vente supprimée avec succès");
+      fetchCaisseData();
+      setShowDeleteAuth(false);
+      setSaleToDelete(null);
+      setDeletePassword("");
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  // ==================== FILE UPLOAD ====================
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    const response = await axios.post(`${API}/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    
+    return response.data.url;
+  };
+
+  // Handle photo file selection
+  const handlePhotoFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPhotoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle video file selection
+  const handleVideoFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setVideoFile(file);
+    }
+  };
+
+  // Handle promo file selection
+  const handlePromoFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPromoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPromoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // ==================== DAILY MENU ====================
+  const addMenuItem = () => setMenuItemsList([...menuItemsList, ""]);
+  const removeMenuItem = (index) => setMenuItemsList(menuItemsList.filter((_, i) => i !== index));
+  const updateMenuItem = (index, value) => {
+    const newItems = [...menuItemsList];
+    newItems[index] = value;
+    setMenuItemsList(newItems);
+  };
+
+  // MODIFS : Handle Menu Image Change
+  const handleMenuFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMenuFile(file);
+      setMenuPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmitMenu = async (e) => {
     e.preventDefault();
+    const filteredItems = menuItemsList.filter(item => item.trim() !== "");
+    if (filteredItems.length === 0) {
+      toast.error("Ajoutez au moins un plat");
+      return;
+    }
+
     let finalImageUrl = menuImageUrl;
-    if (menuUploadMode === "file" && menuFile) finalImageUrl = await uploadFile(menuFile);
+
+    // MODIFS : Upload logic for daily menu image
+    if (menuUploadMode === "file" && menuFile) {
+      try {
+        finalImageUrl = await uploadFile(menuFile);
+      } catch (error) {
+        toast.error("Erreur lors de l'upload de l'affiche");
+        return;
+      }
+    }
+
     try {
-      await axios.post(`${API}/daily-menu`, { date: menuDate, items: menuItemsList.filter(i => i.trim()), special_message: specialMessage || null, image_url: finalImageUrl || null });
-      toast.success("Menu publié"); fetchData();
-    } catch (error) { toast.error("Erreur"); }
+      await axios.post(`${API}/daily-menu`, {
+        date: menuDate,
+        items: filteredItems,
+        special_message: specialMessage || null,
+        image_url: finalImageUrl || null // Nouveau champ
+      });
+      toast.success("Menu du jour créé!");
+      setMenuItemsList([""]);
+      setSpecialMessage("");
+      setMenuImageUrl("");
+      setMenuFile(null);
+      setMenuPreview("");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la création");
+    }
   };
 
+  const handleDeleteMenu = async (menuId) => {
+    if (!window.confirm("Supprimer ce menu?")) return;
+    try {
+      await axios.delete(`${API}/daily-menu/${menuId}`);
+      toast.success("Menu supprimé");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  // ==================== PHOTOS ====================
   const handleSubmitPhoto = async (e) => {
     e.preventDefault();
+    
     let finalUrl = photoUrl;
-    if (photoUploadMode === "file" && photoFile) finalUrl = await uploadFile(photoFile);
+    
+    // If file upload mode, upload file first
+    if (photoUploadMode === "file") {
+      if (!photoFile) {
+        toast.error("Sélectionnez une photo");
+        return;
+      }
+      setUploadingPhoto(true);
+      try {
+        finalUrl = await uploadFile(photoFile);
+      } catch (error) {
+        toast.error("Erreur lors de l'upload de la photo");
+        setUploadingPhoto(false);
+        return;
+      }
+    } else {
+      if (!photoUrl.trim()) {
+        toast.error("Entrez l'URL de la photo");
+        return;
+      }
+    }
+    
     try {
-      await axios.post(`${API}/gallery`, { image_url: finalUrl, caption: photoCaption || null, category: photoCategory });
-      toast.success("Galerie à jour"); fetchData(); setPhotoUrl(""); setPhotoFile(null); setPhotoPreview("");
-    } catch (error) { toast.error("Erreur"); }
+      await axios.post(`${API}/gallery`, {
+        image_url: finalUrl,
+        caption: photoCaption || null,
+        category: photoCategory
+      });
+      toast.success("Photo ajoutée!");
+      setPhotoUrl("");
+      setPhotoCaption("");
+      setPhotoFile(null);
+      setPhotoPreview("");
+      if (photoFileRef.current) photoFileRef.current.value = "";
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de l'ajout");
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
+  const handleDeletePhoto = async (photoId) => {
+    if (!window.confirm("Supprimer cette photo?")) return;
+    try {
+      await axios.delete(`${API}/gallery/${photoId}`);
+      toast.success("Photo supprimée");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  // ==================== VIDEOS ====================
   const handleSubmitVideo = async (e) => {
     e.preventDefault();
+    
+    if (!videoTitle.trim()) {
+      toast.error("Entrez un titre");
+      return;
+    }
+    
     let finalUrl = videoUrl;
     let finalType = videoType;
-    if (videoUploadMode === "file" && videoFile) { finalUrl = await uploadFile(videoFile); finalType = "direct"; }
+    
+    // If file upload mode, upload file first
+    if (videoUploadMode === "file") {
+      if (!videoFile) {
+        toast.error("Sélectionnez une vidéo");
+        return;
+      }
+      setUploadingVideo(true);
+      try {
+        finalUrl = await uploadFile(videoFile);
+        finalType = "direct";
+      } catch (error) {
+        toast.error("Erreur lors de l'upload de la vidéo");
+        setUploadingVideo(false);
+        return;
+      }
+    } else {
+      if (!videoUrl.trim()) {
+        toast.error("Entrez l'URL de la vidéo");
+        return;
+      }
+    }
+    
     try {
-      await axios.post(`${API}/videos`, { title: videoTitle, video_url: finalUrl, video_type: finalType, description: videoDescription || null });
-      toast.success("Vidéo ajoutée"); fetchData();
-    } catch (error) { toast.error("Erreur"); }
+      await axios.post(`${API}/videos`, {
+        title: videoTitle,
+        video_url: finalUrl,
+        video_type: finalType,
+        description: videoDescription || null
+      });
+      toast.success("Vidéo ajoutée!");
+      setVideoTitle("");
+      setVideoUrl("");
+      setVideoDescription("");
+      setVideoFile(null);
+      if (videoFileRef.current) videoFileRef.current.value = "";
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de l'ajout");
+    } finally {
+      setUploadingVideo(false);
+    }
   };
 
+  const handleDeleteVideo = async (videoId) => {
+    if (!window.confirm("Supprimer cette vidéo?")) return;
+    try {
+      await axios.delete(`${API}/videos/${videoId}`);
+      toast.success("Vidéo supprimée");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  const handleToggleVideo = async (videoId, isActive) => {
+    try {
+      await axios.put(`${API}/videos/${videoId}?is_active=${!isActive}`);
+      toast.success("Vidéo mise à jour");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour");
+    }
+  };
+
+  // ==================== PROMOTIONS ====================
   const handleSubmitPromo = async (e) => {
     e.preventDefault();
+    if (!promoTitle.trim() || !promoDescription.trim()) {
+      toast.error("Remplissez le titre et la description");
+      return;
+    }
+    
     let finalImageUrl = promoImage;
-    if (promoUploadMode === "file" && promoFile) finalImageUrl = await uploadFile(promoFile);
+    
+    // If file upload mode and file selected, upload it
+    if (promoUploadMode === "file" && promoFile) {
+      setUploadingPromo(true);
+      try {
+        finalImageUrl = await uploadFile(promoFile);
+      } catch (error) {
+        toast.error("Erreur lors de l'upload de l'image");
+        setUploadingPromo(false);
+        return;
+      }
+    }
+    
     try {
-      await axios.post(`${API}/promotions`, { title: promoTitle, description: promoDescription, image_url: finalImageUrl || null, promo_type: promoType, end_date: promoEndDate || null });
-      toast.success("Actualité créée"); fetchData();
-    } catch (error) { toast.error("Erreur"); }
+      await axios.post(`${API}/promotions`, {
+        title: promoTitle,
+        description: promoDescription,
+        image_url: finalImageUrl || null,
+        promo_type: promoType,
+        start_date: promoStartDate || null,
+        end_date: promoEndDate || null
+      });
+      toast.success("Promotion créée!");
+      setPromoTitle("");
+      setPromoDescription("");
+      setPromoImage("");
+      setPromoStartDate("");
+      setPromoEndDate("");
+      setPromoFile(null);
+      setPromoPreview("");
+      if (promoFileRef.current) promoFileRef.current.value = "";
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la création");
+    } finally {
+      setUploadingPromo(false);
+    }
+  };
+
+  const handleDeletePromo = async (promoId) => {
+    if (!window.confirm("Supprimer cette promotion?")) return;
+    try {
+      await axios.delete(`${API}/promotions/${promoId}`);
+      toast.success("Promotion supprimée");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  const handleTogglePromo = async (promoId, isActive) => {
+    try {
+      await axios.put(`${API}/promotions/${promoId}`, { is_active: !isActive });
+      toast.success("Promotion mise à jour");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour");
+    }
+  };
+
+  // ==================== HERO CONTENT ====================
+  const handleHeroFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setHeroFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeroPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmitHero = async (e) => {
     e.preventDefault();
     setSavingHero(true);
+    
     let finalImageUrl = heroBackgroundImage;
-    if (heroUploadMode === "file" && heroFile) finalImageUrl = await uploadFile(heroFile);
+    
+    // If file upload mode and file selected, upload it
+    if (heroUploadMode === "file" && heroFile) {
+      try {
+        finalImageUrl = await uploadFile(heroFile);
+      } catch (error) {
+        toast.error("Erreur lors de l'upload de l'image");
+        setSavingHero(false);
+        return;
+      }
+    }
+    
     try {
-      await axios.put(`${API}/hero-content`, { title_line1: heroTitleLine1, title_line2: heroTitleLine2, description: heroDescription, background_image: finalImageUrl });
-      toast.success("Accueil mis à jour"); fetchData();
-    } catch (error) { toast.error("Erreur"); } finally { setSavingHero(false); }
+      await axios.put(`${API}/hero-content`, {
+        title_line1: heroTitleLine1 || undefined,
+        title_line2: heroTitleLine2 || undefined,
+        description: heroDescription || undefined,
+        background_image: finalImageUrl || undefined
+      });
+      toast.success("Message d'accueil mis à jour!");
+      setHeroFile(null);
+      setHeroPreview("");
+      if (heroFileRef.current) heroFileRef.current.value = "";
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour");
+    } finally {
+      setSavingHero(false);
+    }
+  };
+
+  // ==================== MENU ITEMS ====================
+  const handleMenuItemFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMenuItemFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMenuItemPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const resetMenuForm = () => {
+    setShowMenuForm(false);
+    setEditingMenuItem(null);
+    setMenuItemName("");
+    setMenuItemDescription("");
+    setMenuItemPrice("");
+    setMenuItemCategory("Plats Ivoiriens");
+    setMenuItemImageUrl("");
+    setMenuItemUploadMode("url");
+    setMenuItemFile(null);
+    setMenuItemPreview("");
+    setMenuItemFeatured(false);
+    if (menuItemFileRef.current) menuItemFileRef.current.value = "";
+  };
+
+  const openEditMenuItem = (item) => {
+    setEditingMenuItem(item);
+    setMenuItemName(item.name);
+    setMenuItemDescription(item.description);
+    setMenuItemPrice(item.price.toString());
+    setMenuItemCategory(item.category);
+    setMenuItemImageUrl(item.image_url);
+    setMenuItemFeatured(item.is_featured);
+    setMenuItemUploadMode("url");
+    setMenuItemFile(null);
+    setMenuItemPreview("");
+    setShowMenuForm(true);
   };
 
   const handleSubmitMenuItem = async (e) => {
     e.preventDefault();
+    if (!menuItemName.trim() || !menuItemDescription.trim() || !menuItemPrice) {
+      toast.error("Remplissez tous les champs obligatoires");
+      return;
+    }
+
     setSubmittingMenuItem(true);
     let finalImageUrl = menuItemImageUrl;
-    if (menuItemUploadMode === "file" && menuItemFile) finalImageUrl = await uploadFile(menuItemFile);
+
+    if (menuItemUploadMode === "file") {
+      if (!menuItemFile && !editingMenuItem) {
+        toast.error("Sélectionnez une photo");
+        setSubmittingMenuItem(false);
+        return;
+      }
+      if (menuItemFile) {
+        try {
+          finalImageUrl = await uploadFile(menuItemFile);
+        } catch (error) {
+          toast.error("Erreur lors de l'upload de la photo");
+          setSubmittingMenuItem(false);
+          return;
+        }
+      }
+    } else {
+      if (!finalImageUrl.trim() && !editingMenuItem) {
+        toast.error("Entrez l'URL de la photo");
+        setSubmittingMenuItem(false);
+        return;
+      }
+    }
+
     try {
       if (editingMenuItem) {
-        await axios.put(`${API}/menu/${editingMenuItem.id}?name=${menuItemName}&description=${menuItemDescription}&price=${menuItemPrice}&category=${menuItemCategory}&is_featured=${menuItemFeatured}&image_url=${finalImageUrl}`);
-        toast.success("Plat modifié");
+        const params = new URLSearchParams();
+        params.append("name", menuItemName);
+        params.append("description", menuItemDescription);
+        params.append("price", menuItemPrice);
+        params.append("category", menuItemCategory);
+        params.append("is_featured", menuItemFeatured.toString());
+        if (finalImageUrl) params.append("image_url", finalImageUrl);
+        await axios.put(`${API}/menu/${editingMenuItem.id}?${params.toString()}`);
+        toast.success("Plat modifié avec succès!");
       } else {
-        await axios.post(`${API}/menu`, { name: menuItemName, description: menuItemDescription, price: parseInt(menuItemPrice), category: menuItemCategory, image_url: finalImageUrl, is_featured: menuItemFeatured });
-        toast.success("Plat ajouté");
+        await axios.post(`${API}/menu`, {
+          name: menuItemName,
+          description: menuItemDescription,
+          price: parseInt(menuItemPrice),
+          category: menuItemCategory,
+          image_url: finalImageUrl,
+          is_featured: menuItemFeatured
+        });
+        toast.success("Plat ajouté avec succès!");
       }
-      resetMenuForm(); fetchData();
-    } catch (error) { toast.error("Erreur"); } finally { setSubmittingMenuItem(false); }
-  };
-
-  const resetMenuForm = () => {
-    setShowMenuForm(false); setEditingMenuItem(null); setMenuItemName(""); setMenuItemDescription(""); setMenuItemPrice(""); setMenuItemCategory("Plats Ivoiriens"); setMenuItemImageUrl(""); setMenuItemFile(null); setMenuItemPreview(""); setMenuItemFeatured(false);
-  };
-
-  const openEditMenuItem = (item) => {
-    setEditingMenuItem(item); setMenuItemName(item.name); setMenuItemDescription(item.description); setMenuItemPrice(item.price.toString()); setMenuItemCategory(item.category); setMenuItemImageUrl(item.image_url); setMenuItemFeatured(item.is_featured); setShowMenuForm(true);
+      resetMenuForm();
+      fetchData();
+    } catch (error) {
+      toast.error(editingMenuItem ? "Erreur lors de la modification" : "Erreur lors de l'ajout");
+    } finally {
+      setSubmittingMenuItem(false);
+    }
   };
 
   const handleToggleMenuItem = async (itemId, field, currentValue) => {
-    try { await axios.put(`${API}/menu/${itemId}?${field}=${!currentValue}`); fetchData(); } catch (error) { toast.error("Erreur"); }
+    try {
+      const params = new URLSearchParams();
+      params.append(field, (!currentValue).toString());
+      await axios.put(`${API}/menu/${itemId}?${params.toString()}`);
+      toast.success("Plat mis à jour");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour");
+    }
   };
 
-  const handleReviewAction = async (id, action) => {
-    if (action === "approve") await axios.put(`${API}/reviews/${id}/approve`);
-    else if (action === "hide") await axios.put(`${API}/reviews/${id}/hide`);
-    else if (action === "delete") await axios.delete(`${API}/reviews/${id}`);
-    fetchData();
+  const handleDeleteMenuItem = async (itemId) => {
+    if (!window.confirm("Supprimer ce plat?")) return;
+    try {
+      await axios.delete(`${API}/menu/${itemId}`);
+      toast.success("Plat supprimé");
+      fetchData();
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
   };
 
-  const UploadModeToggle = ({ mode, setMode }) => (
-    <div className="flex gap-2 mb-4">
-      <Button type="button" onClick={() => setMode("url")} className={mode === "url" ? "bg-[#D4AF37] text-black" : "bg-white/5"} size="sm">URL</Button>
-      <Button type="button" onClick={() => setMode("file")} className={mode === "file" ? "bg-[#D4AF37] text-black" : "bg-white/5"} size="sm">Fichier</Button>
-    </div>
-  );
+  // Helper to extract YouTube video ID
+  const getYouTubeId = (url) => {
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    return match ? match[1] : null;
+  };
 
   const tabs = [
     { id: "accueil", label: "Accueil", icon: Home },
-    { id: "menu", label: "Menu", icon: Calendar },
+    { id: "menu", label: "Menu du Jour", icon: Calendar },
     { id: "photos", label: "Photos", icon: Image },
     { id: "videos", label: "Vidéos", icon: Video },
-    { id: "promos", label: "Pubs", icon: Megaphone },
-    { id: "plats", label: "Plats", icon: Utensils },
-    { id: "commentaires", label: "Avis", icon: MessageSquare },
+    { id: "promos", label: "Promotions", icon: Megaphone },
+    { id: "plats", label: "Gestion Plats", icon: Utensils },
+    { id: "commentaires", label: "Commentaires", icon: MessageSquare },
     { id: "caisse", label: "Caisse", icon: ShoppingCart },
   ];
 
-  if (isCheckingAuth) return <div className="min-h-screen bg-[#05100D] flex items-center justify-center text-white">Chargement...</div>;
-
-  if (!isAuthenticated) return (
-    <div className="min-h-screen bg-[#05100D] flex items-center justify-center p-6">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="luxury-card p-10 w-full max-w-md text-center border-[#D4AF37]/20">
-        <Lock className="mx-auto text-[#D4AF37] mb-6" size={48} />
-        <h1 className="text-2xl font-bold text-white mb-8 font-display tracking-widest uppercase">Admin Loman</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <Input placeholder="Identifiant" value={username} onChange={e => setUsername(e.target.value)} className="input-luxury text-center" />
-          <div className="relative">
-            <Input type={showPassword ? "text" : "password"} placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} className="input-luxury text-center" />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3 text-gray-500">{showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}</button>
-          </div>
-          <Button type="submit" className="w-full btn-gold py-6 font-bold uppercase tracking-widest">Entrer</Button>
-        </form>
-      </motion.div>
+  // Upload mode toggle component
+  const UploadModeToggle = ({ mode, setMode }) => (
+    <div className="flex gap-2 mb-4">
+      <button
+        type="button"
+        onClick={() => setMode("url")}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
+          mode === "url" 
+          ? "bg-[#D4AF37] text-[#0F2E24]" 
+          : "bg-white/5 text-[#A3B1AD] border border-white/10"
+        }`}
+      >
+        <Link size={16} />
+        Lien URL
+      </button>
+      <button
+        type="button"
+        onClick={() => setMode("file")}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
+          mode === "file" 
+          ? "bg-[#D4AF37] text-[#0F2E24]" 
+          : "bg-white/5 text-[#A3B1AD] border border-white/10"
+        }`}
+      >
+        <Upload size={16} />
+        Depuis l'appareil
+      </button>
     </div>
   );
 
+  // Loading state
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-[#05100D] pt-32 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#A3B1AD]">Vérification...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login Form
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#05100D] pt-32 pb-24 flex items-center justify-center" data-testid="admin-login-page">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-6"
+        >
+          <div className="luxury-card p-8 md:p-10 rounded-3xl">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-[#D4AF37]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="text-[#D4AF37]" size={36} />
+              </div>
+              <h1 className="text-2xl font-bold text-[#F9F7F2]">Administration</h1>
+              <p className="text-[#A3B1AD] mt-2">Connectez-vous pour gérer le restaurant</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <Label className="text-[#A3B1AD] mb-2 block">Nom d'utilisateur</Label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A3B1AD]" size={18} />
+                  <Input
+                    type="text"
+                    placeholder="Entrez votre nom d'utilisateur"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="input-luxury pl-12"
+                    data-testid="login-username"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-[#A3B1AD] mb-2 block">Mot de passe</Label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A3B1AD]" size={18} />
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Entrez votre mot de passe"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-luxury pl-12 pr-12"
+                    data-testid="login-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A3B1AD] hover:text-[#D4AF37]"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full btn-gold py-6 text-lg"
+                data-testid="login-submit"
+              >
+                {loginLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-[#0F2E24] border-t-transparent rounded-full animate-spin"></div>
+                    Connexion...
+                  </span>
+                ) : (
+                  "Se Connecter"
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-8 p-4 bg-[#D4AF37]/10 rounded-xl">
+              <p className="text-[#D4AF37] text-sm text-center">
+                Accès réservé à l'administrateur du restaurant
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Admin Dashboard
   return (
-    <div className="min-h-screen bg-[#05100D] pt-24 pb-12 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-10">
-          <h1 className="text-3xl text-white font-display uppercase tracking-widest">Tableau de Bord</h1>
-          <div className="flex gap-3">
-            <Button onClick={fetchData} variant="outline" className="border-white/10 text-white"><RefreshCw size={18} className="mr-2"/>Actualiser</Button>
-            <Button onClick={() => setShowLogoutConfirm(true)} className="bg-red-500/20 text-red-500"><LogOut size={18}/></Button>
+    <div className="min-h-screen bg-[#05100D] pt-32 pb-24" data-testid="admin-page">
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-2 block">
+              Espace Administrateur
+            </span>
+            <h1 className="text-3xl md:text-4xl text-[#F9F7F2]">Gestion du Restaurant</h1>
+          </motion.div>
+          <div className="flex items-center gap-4">
+            <RouterLink to="/dashboard" className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F2CC8F] rounded-full px-6 py-2 flex items-center gap-2 text-sm font-semibold transition-all" data-testid="dashboard-link">
+              <LayoutDashboard size={16} />
+              Dashboard Pro
+            </RouterLink>
+            <Button onClick={fetchData} className="bg-white/5 border border-white/10 text-[#A3B1AD] hover:text-[#D4AF37] hover:border-[#D4AF37]/50 rounded-full px-6" data-testid="refresh-btn">
+              <RefreshCw size={16} className="mr-2" />
+              Actualiser
+            </Button>
+            <Button onClick={handleLogout} className="bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 rounded-full px-6" data-testid="logout-btn">
+              <LogOut size={16} className="mr-2" />
+              Déconnexion
+            </Button>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-white/5 pb-6">
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${activeTab === t.id ? "bg-[#D4AF37] text-black" : "text-gray-400 hover:text-white bg-white/5"}`}>{t.label}</button>
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-10 pb-4 border-b border-white/10">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-[#D4AF37] text-[#0F2E24]"
+                  : "bg-white/5 text-[#A3B1AD] border border-white/10 hover:border-[#D4AF37]/50 hover:text-[#D4AF37]"
+              }`}
+              data-testid={`tab-${tab.id}`}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+            </button>
           ))}
         </div>
 
+        {/* ==================== ACCUEIL / HERO ==================== */}
         {activeTab === "accueil" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="luxury-card p-8">
-              <h2 className="text-xl text-[#D4AF37] mb-6 uppercase tracking-widest">Message d'Accueil</h2>
-              <form onSubmit={handleSubmitHero} className="space-y-4">
-                <Input placeholder="Titre Ligne 1" value={heroTitleLine1} onChange={e => setHeroTitleLine1(e.target.value)} className="input-luxury" />
-                <Input placeholder="Titre Ligne 2 (Or)" value={heroTitleLine2} onChange={e => setHeroTitleLine2(e.target.value)} className="input-luxury" />
-                <Textarea placeholder="Description" value={heroDescription} onChange={e => setHeroDescription(e.target.value)} className="input-luxury min-h-[120px]" />
-                <UploadModeToggle mode={heroUploadMode} setMode={setHeroUploadMode} />
-                {heroUploadMode === "url" ? <Input value={heroBackgroundImage} onChange={e => setHeroBackgroundImage(e.target.value)} className="input-luxury" /> : <Input type="file" onChange={e => {const f=e.target.files[0]; if(f){setHeroFile(f); setHeroPreview(URL.createObjectURL(f))}}} className="input-luxury" />}
-                <Button type="submit" className="w-full btn-gold py-6">Enregistrer</Button>
-              </form>
-            </div>
-            <div className="luxury-card overflow-hidden h-80 relative border-white/5"><img src={heroPreview || heroBackgroundImage} className="w-full h-full object-cover opacity-50" /><div className="absolute bottom-6 left-6 text-white font-accent italic text-2xl">{heroTitleLine1}</div></div>
-          </div>
-        )}
-
-        {activeTab === "menu" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="luxury-card p-8">
-              <h2 className="text-xl text-white mb-6 uppercase tracking-widest">Menu du Jour</h2>
-              <form onSubmit={handleSubmitMenu} className="space-y-4">
-                <Input type="date" value={menuDate} onChange={e => setMenuDate(e.target.value)} className="input-luxury" />
-                {menuItemsList.map((it, idx) => (
-                  <div key={idx} className="flex gap-2"><Input value={it} onChange={e => {const n = [...menuItemsList]; n[idx] = e.target.value; setMenuItemsList(n)}} className="input-luxury" /><Button type="button" onClick={() => setMenuItemsList(menuItemsList.filter((_,i)=>i!==idx))} className="bg-red-500/20 text-red-500"><X size={16}/></Button></div>
-                ))}
-                <Button type="button" onClick={() => setMenuItemsList([...menuItemsList, ""])} variant="ghost" className="text-[#D4AF37]">+ Ajouter un plat</Button>
-                <UploadModeToggle mode={menuUploadMode} setMode={setMenuUploadMode} />
-                {menuUploadMode === "url" ? <Input value={menuImageUrl} onChange={e => setMenuImageUrl(e.target.value)} className="input-luxury" /> : <Input type="file" onChange={e => {const f=e.target.files[0]; if(f){setMenuFile(f); setMenuPreview(URL.createObjectURL(f))}}} className="input-luxury" />}
-                <Button type="submit" className="w-full btn-gold py-6">Publier le menu</Button>
-              </form>
-            </div>
-            <div className="space-y-4">
-              {dailyMenus.map(m => (
-                <div key={m.id} className="bg-white/5 p-5 rounded-2xl flex justify-between items-center group">
-                  <div><p className="text-white font-bold">{new Date(m.date).toLocaleDateString()}</p><p className="text-xs text-gray-500">{m.items.join(", ")}</p></div>
-                  <Button onClick={() => axios.delete(`${API}/daily-menu/${m.id}`).then(()=>fetchData())} variant="ghost" className="text-red-500 opacity-0 group-hover:opacity-100"><Trash2 size={18}/></Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === "photos" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="luxury-card p-8">
-              <h2 className="text-xl text-white mb-6 uppercase tracking-widest">Photos Galerie</h2>
-              <form onSubmit={handleSubmitPhoto} className="space-y-4">
-                <UploadModeToggle mode={photoUploadMode} setMode={setPhotoUploadMode} />
-                {photoUploadMode === "url" ? <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} className="input-luxury" /> : <Input type="file" onChange={e => {const f=e.target.files[0]; if(f){setPhotoFile(f); setPhotoPreview(URL.createObjectURL(f))}}} className="input-luxury" />}
-                <Input placeholder="Légende" value={photoCaption} onChange={e => setPhotoCaption(e.target.value)} className="input-luxury" />
-                <Button type="submit" className="w-full btn-gold py-6">Ajouter</Button>
-              </form>
-            </div>
-            <div className="grid grid-cols-3 gap-4">{photos.map(p => (
-              <div key={p.id} className="relative group rounded-xl overflow-hidden h-32 border border-white/5">
-                <img src={p.image_url} className="w-full h-full object-cover" />
-                <button onClick={() => axios.delete(`${API}/gallery/${p.id}`).then(()=>fetchData())} className="absolute inset-0 bg-red-500/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white"><Trash2/></button>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="luxury-card p-8 rounded-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Home className="text-[#D4AF37]" size={24} />
+                <h2 className="text-xl text-[#F9F7F2] font-semibold">Message d'Accueil</h2>
               </div>
-            ))}</div>
-          </div>
-        )}
-
-        {activeTab === "videos" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="luxury-card p-8">
-              <h2 className="text-xl text-white mb-6 uppercase tracking-widest">Vidéos</h2>
-              <form onSubmit={handleSubmitVideo} className="space-y-4">
-                <Input placeholder="Titre" value={videoTitle} onChange={e => setVideoTitle(e.target.value)} className="input-luxury" />
-                <Input placeholder="Lien YouTube ou URL" value={videoUrl} onChange={e => setVideoUrl(e.target.value)} className="input-luxury" />
-                <Button type="submit" className="w-full btn-gold py-6">Ajouter</Button>
-              </form>
-            </div>
-            <div className="space-y-4">{videos.map(v => (
-              <div key={v.id} className="bg-white/5 p-5 rounded-2xl flex justify-between items-center group">
-                <div className="text-white font-bold">{v.title}</div>
-                <div className="flex gap-4 items-center">
-                  <Switch checked={v.is_active} onCheckedChange={() => axios.put(`${API}/videos/${v.id}?is_active=${!v.is_active}`).then(()=>fetchData())} />
-                  <Button onClick={() => axios.delete(`${API}/videos/${v.id}`).then(()=>fetchData())} variant="ghost" className="text-red-500"><Trash2 size={16}/></Button>
+              
+              <form onSubmit={handleSubmitHero} className="space-y-5">
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Titre - Ligne 1</Label>
+                  <Input 
+                    placeholder="Ici c'est manger" 
+                    value={heroTitleLine1} 
+                    onChange={(e) => setHeroTitleLine1(e.target.value)} 
+                    className="input-luxury" 
+                    data-testid="hero-title1-input"
+                  />
                 </div>
-              </div>
-            ))}</div>
-          </div>
-        )}
-
-        {activeTab === "promos" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="luxury-card p-8">
-              <h2 className="text-xl text-white mb-6 uppercase tracking-widest">Publicités</h2>
-              <form onSubmit={handleSubmitPromo} className="space-y-4">
-                <Input placeholder="Titre" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} className="input-luxury" />
-                <select value={promoType} onChange={e => setPromoType(e.target.value)} className="w-full bg-[#0F2E24] border border-white/10 text-white p-4 rounded-xl outline-none focus:border-[#D4AF37]">
-                    <option value="Promotion">Promotion (Resto)</option>
-                    <option value="Concert">Concert / Événement</option>
-                    <option value="Biblique">Message Biblique</option>
-                    <option value="Annonce">Annonce</option>
-                </select>
-                <Textarea placeholder="Description" value={promoDescription} onChange={e => setPromoDescription(e.target.value)} className="input-luxury" />
-                <Button type="submit" className="w-full btn-gold py-6">Lancer l'annonce</Button>
-              </form>
-            </div>
-            <div className="space-y-4">{promotions.map(pr => (
-              <div key={pr.id} className="bg-white/5 p-5 rounded-2xl flex justify-between items-center group shadow-xl">
-                <div><p className="text-white font-bold">{pr.title}</p><span className="text-[10px] text-[#D4AF37] uppercase">{pr.promo_type}</span></div>
-                <div className="flex gap-4">
-                  <Switch checked={pr.is_active} onCheckedChange={() => axios.put(`${API}/promotions/${pr.id}`, {is_active: !pr.is_active}).then(()=>fetchData())} />
-                  <Button onClick={() => axios.delete(`${API}/promotions/${pr.id}`).then(()=>fetchData())} variant="ghost" className="text-red-500 opacity-0 group-hover:opacity-100"><Trash2 size={16}/></Button>
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Titre - Ligne 2 (en doré)</Label>
+                  <Input 
+                    placeholder="bien hein" 
+                    value={heroTitleLine2} 
+                    onChange={(e) => setHeroTitleLine2(e.target.value)} 
+                    className="input-luxury" 
+                    data-testid="hero-title2-input"
+                  />
                 </div>
-              </div>
-            ))}</div>
-          </div>
-        )}
-
-        {activeTab === "plats" && (
-          <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl text-white font-display uppercase tracking-widest">La Carte</h2>
-                <Button onClick={() => {resetMenuForm(); setShowMenuForm(true)}} className="btn-gold px-8"><Plus className="mr-2"/>Nouveau Plat</Button>
-            </div>
-            {showMenuForm && (
-                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="luxury-card p-10 space-y-6">
-                    <div className="grid grid-cols-2 gap-6"><Input placeholder="Nom du plat" value={menuItemName} onChange={e => setMenuItemName(e.target.value)} className="input-luxury" /><Input type="number" placeholder="Prix" value={menuItemPrice} onChange={e => setMenuItemPrice(e.target.value)} className="input-luxury" /></div>
-                    <select value={menuItemCategory} onChange={e => setMenuItemCategory(e.target.value)} className="w-full bg-[#0F2E24] border border-white/10 text-white p-4 rounded-xl">
-                        {MENU_CATEGORIES.map(c => <option key={c} value={c} className="text-black">{c}</option>)}
-                    </select>
-                    <Textarea placeholder="Description..." value={menuItemDescription} onChange={e => setMenuItemDescription(e.target.value)} className="input-luxury" />
-                    <Input placeholder="Lien Photo" value={menuItemImageUrl} onChange={e => setMenuItemImageUrl(e.target.value)} className="input-luxury" />
-                    <div className="flex gap-4 pt-4"><Button onClick={handleSubmitMenuItem} className="btn-gold flex-1 py-6 font-bold uppercase">Valider</Button><Button onClick={resetMenuForm} variant="outline" className="flex-1 border-white/10 text-white">Annuler</Button></div>
-                </motion.div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {menuItems.map(it => (
-                    <div key={it.id} className="luxury-card group p-0 overflow-hidden relative border-white/5">
-                        <img src={it.image_url} className="h-40 w-full object-cover" />
-                        <div className="p-5">
-                            <h4 className="text-white font-bold text-sm mb-1">{it.name}</h4>
-                            <p className="text-[#D4AF37] font-bold">{it.price.toLocaleString()} F</p>
-                            <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
-                                <Switch checked={it.is_available} onCheckedChange={() => axios.put(`${API}/menu/${it.id}?is_available=${!it.is_available}`).then(()=>fetchData())} />
-                                <div className="flex gap-2">
-                                    <button onClick={() => openEditMenuItem(it)} className="p-2 bg-white/5 rounded-full text-white hover:bg-[#D4AF37] hover:text-black"><Pencil size={14}/></button>
-                                    <button onClick={() => axios.delete(`${API}/menu/${it.id}`).then(()=>fetchData())} className="p-2 bg-red-500/10 rounded-full text-red-500 hover:bg-red-500 hover:text-white"><Trash2 size={14}/></button>
-                                </div>
-                            </div>
-                        </div>
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Description</Label>
+                  <Textarea 
+                    placeholder="Une cuisine ivoirienne authentique..." 
+                    value={heroDescription} 
+                    onChange={(e) => setHeroDescription(e.target.value)} 
+                    className="input-luxury min-h-[100px]" 
+                    data-testid="hero-description-input"
+                  />
+                </div>
+                
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Image d'arrière-plan</Label>
+                  <UploadModeToggle mode={heroUploadMode} setMode={setHeroUploadMode} />
+                  
+                  {heroUploadMode === "url" ? (
+                    <Input 
+                      type="url" 
+                      placeholder="https://exemple.com/image.jpg" 
+                      value={heroBackgroundImage} 
+                      onChange={(e) => setHeroBackgroundImage(e.target.value)} 
+                      className="input-luxury" 
+                      data-testid="hero-image-url-input"
+                    />
+                  ) : (
+                    <div>
+                      <div 
+                        onClick={() => heroFileRef.current?.click()}
+                        className="border-2 border-dashed border-[#D4AF37]/30 rounded-xl p-6 text-center cursor-pointer hover:border-[#D4AF37]/50 transition-colors"
+                      >
+                        <FileImage className="mx-auto text-[#D4AF37] mb-2" size={32} />
+                        <p className="text-[#A3B1AD] text-sm">Cliquez pour sélectionner une image</p>
+                      </div>
+                      <input 
+                        ref={heroFileRef}
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleHeroFileChange} 
+                        className="hidden" 
+                        data-testid="hero-file-input"
+                      />
+                      {heroFile && <p className="text-[#D4AF37] text-sm mt-2">Fichier: {heroFile.name}</p>}
                     </div>
-                ))}
-            </div>
-          </div>
-        )}
+                  )}
+                </div>
 
-        {activeTab === "commentaires" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {allReviews.map(r => (
-              <div key={r.id} className={`luxury-card p-8 border-l-4 ${r.is_approved ? 'border-l-green-500' : 'border-l-yellow-500'}`}>
-                <div className="flex justify-between items-start mb-4">
-                  <p className="text-white font-bold font-display uppercase tracking-widest">{r.author}</p>
-                  <div className="flex gap-2">
-                    {!r.is_approved ? <Button onClick={() => handleReviewAction(r.id, "approve")} className="bg-green-500/20 text-green-500 text-[10px] h-8 px-3">Approuver</Button> : <Button onClick={() => handleReviewAction(r.id, "hide")} className="bg-yellow-500/20 text-yellow-500 text-[10px] h-8 px-3">Masquer</Button>}
-                    <Button onClick={() => handleReviewAction(r.id, "delete")} className="bg-red-500/20 text-red-500 text-[10px] h-8 px-3"><Trash2 size={14}/></Button>
+                <Button type="submit" disabled={savingHero} className="w-full btn-gold" data-testid="submit-hero-btn">
+                  {savingHero ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-[#0F2E24] border-t-transparent rounded-full animate-spin"></div>
+                      Enregistrement...
+                    </span>
+                  ) : (
+                    "Enregistrer les modifications"
+                  )}
+                </Button>
+              </form>
+            </motion.div>
+
+            {/* Preview */}
+            <div className="space-y-4">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">Aperçu en direct</h3>
+              <div className="luxury-card rounded-2xl overflow-hidden">
+                <div className="relative h-64">
+                  <img 
+                    src={heroPreview || heroBackgroundImage || "https://customer-assets.emergentagent.com/job_loman-restaurant/artifacts/jde9y3pb_chl.jpg"} 
+                    alt="Aperçu arrière-plan" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+                  <div className="absolute inset-0 p-6 flex flex-col justify-center">
+                    <span className="text-[#D4AF37] text-[10px] font-semibold uppercase tracking-[0.2em] mb-2">
+                      Restaurant Ivoirien d'Exception
+                    </span>
+                    <h2 className="text-2xl font-accent italic text-white leading-tight mb-2">
+                      {heroTitleLine1 || "Ici c'est manger"}<br/>
+                      <span className="text-[#D4AF37]">{heroTitleLine2 || "bien hein"}</span>
+                    </h2>
+                    <p className="text-sm text-white/70 line-clamp-2">
+                      {heroDescription || "Une cuisine ivoirienne authentique, sublimée par notre savoir-faire."}
+                    </p>
                   </div>
                 </div>
-                <p className="text-[#F9F7F2]/80 italic leading-relaxed">"{r.comment}"</p>
               </div>
-            ))}
+              
+              <div className="luxury-card p-5 rounded-2xl">
+                <h4 className="text-[#F9F7F2] font-semibold mb-3">Conseils</h4>
+                <ul className="space-y-2 text-sm text-[#A3B1AD]">
+                  <li>• Utilisez une image de bonne qualité (min. 1920x1080)</li>
+                  <li>• Préférez une image avec un sujet à droite pour une meilleure lisibilité du texte</li>
+                  <li>• Gardez le titre court et accrocheur</li>
+                </ul>
+              </div>
+            </div>
           </div>
         )}
 
-        {activeTab === "caisse" && (
-          <div className="space-y-10">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="luxury-card p-6 text-center border-white/5"><p className="text-gray-500 text-[10px] font-bold uppercase mb-2">Ventes</p><p className="text-3xl font-bold text-[#D4AF37]">{cashStats?.total_sales || 0}</p></div>
-                <div className="luxury-card p-6 text-center border-white/5"><p className="text-gray-500 text-[10px] font-bold uppercase mb-2">Recette</p><p className="text-3xl font-bold text-white">{(cashStats?.total_revenue || 0).toLocaleString()} F</p></div>
-                <div className="luxury-card p-6 text-center border-white/5"><p className="text-gray-500 text-[10px] font-bold uppercase mb-2">Espèces</p><p className="text-3xl font-bold text-green-500">{(cashStats?.cash_total || 0).toLocaleString()} F</p></div>
-                <div className="luxury-card p-6 text-center border-white/5"><p className="text-gray-500 text-[10px] font-bold uppercase mb-2">MoMo</p><p className="text-3xl font-bold text-blue-500">{(cashStats?.mobile_money_total || 0).toLocaleString()} F</p></div>
-            </div>
-            <div className="luxury-card p-10">
-                <h3 className="text-2xl text-white font-display mb-10 uppercase tracking-widest">Enregistrement Vente</h3>
-                <form onSubmit={handleCashSaleSubmit} className="space-y-6">
-                    {cashItems.map((it, idx) => (
-                        <div key={idx} className="flex flex-col md:flex-row gap-4 items-end bg-white/5 p-4 rounded-xl">
-                            <div className="flex-1 w-full"><Label className="text-gray-400 text-xs mb-2 block uppercase">Désignation</Label>
-                                <select value={it.name} onChange={e => {const s=menuItems.find(m=>m.name===e.target.value); const n=[...cashItems]; n[idx]={...n[idx], name:e.target.value, price:s?s.price:n[idx].price}; setCashItems(n)}} className="w-full bg-[#0F2E24] border border-white/10 text-white rounded-xl p-4 text-sm outline-none focus:border-[#D4AF37]">
-                                    <option value="">Choisir...</option>
-                                    {menuItems.filter(m=>m.is_available).map(m=><option key={m.id} value={m.name} className="text-black">{m.name} - {m.price}F</option>)}
-                                </select>
-                            </div>
-                            <div className="w-full md:w-32"><Label className="text-gray-400 text-xs mb-2 block uppercase tracking-tighter">Qté</Label><Input type="number" min="1" value={it.quantity} onChange={e => {const n=[...cashItems]; n[idx].quantity=Number(e.target.value); setCashItems(n)}} className="input-luxury text-center" /></div>
-                            <div className="w-full md:w-40"><Label className="text-gray-400 text-xs mb-2 block uppercase tracking-tighter">Prix Unit.</Label><Input type="number" value={it.price} onChange={e => {const n=[...cashItems]; n[idx].price=Number(e.target.value); setCashItems(n)}} className="input-luxury text-center font-bold text-[#D4AF37]" /></div>
-                            {cashItems.length > 1 && <Button type="button" onClick={() => setCashItems(cashItems.filter((_,i)=>i!==idx))} className="bg-red-500 h-14 w-14 rounded-xl flex items-center justify-center"><Trash2 size={20}/></Button>}
-                        </div>
-                    ))}
-                    <div className="flex justify-between items-center py-6 border-y border-white/5">
-                        <Button type="button" onClick={()=>setCashItems([...cashItems, { name: "", quantity: 1, price: 0 }])} variant="outline" className="text-[#D4AF37] border-[#D4AF37]/30 hover:bg-[#D4AF37] hover:text-black py-6 px-8 rounded-xl uppercase font-bold">+ Ligne</Button>
-                        <p className="text-4xl font-display font-bold text-[#D4AF37]">{cashItems.reduce((s,i)=>s+(i.price*i.quantity),0).toLocaleString()} F</p>
-                    </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
-                        <div className="space-y-4">
-                            <Label className="text-gray-400 text-xs uppercase block">Canal de Règlement</Label>
-                            <div className="flex gap-4">
-                                <Button type="button" onClick={()=>setCashPaymentMethod("especes")} className={`flex-1 py-8 rounded-xl font-bold uppercase transition-all ${cashPaymentMethod==="especes"?'bg-green-500 text-white shadow-xl shadow-green-500/20':'bg-white/5 text-gray-500 border border-white/5'}`}>Espèces</Button>
-                                <Button type="button" onClick={()=>setCashPaymentMethod("mobile_money")} className={`flex-1 py-8 rounded-xl font-bold uppercase transition-all ${cashPaymentMethod==="mobile_money"?'bg-blue-600 text-white shadow-xl shadow-blue-500/20':'bg-white/5 text-gray-500 border border-white/5'}`}>MoMo / Orange</Button>
-                            </div>
-                        </div>
-                        <div className="space-y-4"><Label className="text-gray-400 text-xs uppercase block">Note Privée</Label><Input placeholder="Commentaire..." value={cashNote} onChange={e=>setCashNote(e.target.value)} className="input-luxury h-full" /></div>
-                    </div>
-                    <Button type="submit" disabled={submittingCash} className="w-full btn-gold py-10 text-2xl font-black uppercase tracking-[0.3em] mt-8 shadow-2xl shadow-[#D4AF37]/10 active:scale-[0.98] transition-all">Valider la Vente</Button>
-                </form>
-            </div>
-            <div className="luxury-card p-8 bg-black/40">
-                <h3 className="text-xl text-white font-display uppercase mb-8 border-b border-white/5 pb-4 tracking-widest">Historique Transactions</h3>
-                <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                    {cashSales.map(s => (
-                        <div key={s.id} className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-2xl flex justify-between items-center shadow-lg group hover:bg-white/[0.04]">
-                            <div className="space-y-2">
-                                <p className="text-white font-bold text-lg leading-none">{s.items.map(i => `${i.name} x${i.quantity}`).join(", ")}</p>
-                                <div className="flex items-center gap-3">
-                                    <p className="text-[10px] text-gray-500 uppercase font-black">{new Date(s.created_at).toLocaleTimeString()}</p>
-                                    <div className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase border ${s.payment_method === 'especes' ? 'border-green-500 text-green-500 bg-green-500/5' : 'border-blue-500 text-blue-500 bg-blue-500/5'}`}>{s.payment_method}</div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-6">
-                                <p className="text-2xl text-white font-display font-bold">{s.total.toLocaleString()} F</p>
-                                <button onClick={() => {setSaleToDelete(s.id); setShowDeleteAuth(true)}} className="text-red-500/40 hover:text-red-500 transition-colors p-2"><Trash2 size={20}/></button>
-                            </div>
-                        </div>
-                    ))}
+        {/* ==================== MENU DU JOUR ==================== */}
+        {activeTab === "menu" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="luxury-card p-8 rounded-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Calendar className="text-[#D4AF37]" size={24} />
+                <h2 className="text-xl text-[#F9F7F2] font-semibold">Nouveau Menu du Jour</h2>
+              </div>
+              <form onSubmit={handleSubmitMenu} className="space-y-5">
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Date</Label>
+                  <Input type="date" value={menuDate} onChange={(e) => setMenuDate(e.target.value)} className="input-luxury" data-testid="menu-date-input" />
                 </div>
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Plats du jour</Label>
+                  <div className="space-y-2">
+                    {menuItemsList.map((item, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input placeholder={`Plat ${index + 1} (ex: Attièkè Poisson - 3500 FCFA)`} value={item} onChange={(e) => updateMenuItem(index, e.target.value)} className="input-luxury" data-testid={`menu-item-${index}`} />
+                        {menuItemsList.length > 1 && (
+                          <Button type="button" variant="ghost" size="icon" onClick={() => removeMenuItem(index)} className="text-red-400 hover:text-red-300">
+                            <X size={18} />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <Button type="button" variant="outline" onClick={addMenuItem} className="mt-3 w-full bg-transparent border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 rounded-lg" data-testid="add-menu-item-btn">
+                    <Plus size={16} className="mr-2" /> Ajouter un plat
+                  </Button>
+                </div>
+
+                {/* MODIFS : Daily Menu Image Form Section */}
+                <div className="mt-6">
+                  <Label className="text-[#A3B1AD] mb-2 block">Affiche du Menu (Image)</Label>
+                  <UploadModeToggle mode={menuUploadMode} setMode={setMenuUploadMode} />
+                  {menuUploadMode === "url" ? (
+                    <Input 
+                      placeholder="Lien de l'image" 
+                      value={menuImageUrl} 
+                      onChange={(e) => setMenuImageUrl(e.target.value)} 
+                      className="input-luxury" 
+                    />
+                  ) : (
+                    <div 
+                      onClick={() => menuFileRef.current?.click()} 
+                      className="border-2 border-dashed border-[#D4AF37]/30 p-6 rounded-xl text-center cursor-pointer hover:border-[#D4AF37]/50"
+                    >
+                      <Upload className="mx-auto text-[#D4AF37] mb-2" />
+                      <p className="text-xs text-[#A3B1AD]">Cliquez pour uploader l'affiche</p>
+                      <input 
+                        type="file" 
+                        ref={menuFileRef} 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleMenuFileChange} 
+                      />
+                    </div>
+                  )}
+                  {(menuPreview || menuImageUrl) && (
+                    <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden border border-[#D4AF37]/20">
+                      <img src={menuPreview || menuImageUrl} className="w-full h-full object-cover" alt="Preview menu" />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Message spécial (optionnel)</Label>
+                  <Textarea placeholder="Ex: Bissap offert pour toute commande de plus de 5000 FCFA!" value={specialMessage} onChange={(e) => setSpecialMessage(e.target.value)} className="input-luxury min-h-[80px]" data-testid="special-message-input" />
+                </div>
+                <Button type="submit" className="w-full btn-gold" data-testid="submit-menu-btn">Publier le Menu</Button>
+              </form>
+            </motion.div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">Menus récents ({dailyMenus.length})</h3>
+              {loading ? (
+                <div className="space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-32 bg-white/5 rounded-2xl animate-pulse"></div>)}</div>
+              ) : dailyMenus.length === 0 ? (
+                <div className="luxury-card p-8 rounded-2xl text-center"><p className="text-[#A3B1AD]">Aucun menu créé</p></div>
+              ) : (
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                  {dailyMenus.map((menu) => (
+                    <motion.div key={menu.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="luxury-card p-5 rounded-2xl">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${menu.is_active ? "bg-green-500/20 text-green-400" : "bg-white/10 text-[#A3B1AD]"}`}>
+                            {menu.is_active ? "Actif" : "Inactif"}
+                          </span>
+                          <p className="text-[#F9F7F2] font-semibold">
+                            {new Date(menu.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteMenu(menu.id)} className="text-red-400 hover:text-red-300" data-testid={`delete-menu-${menu.id}`}>
+                          <Trash2 size={18} />
+                        </Button>
+                      </div>
+                      {menu.image_url && (
+                        <img src={menu.image_url} className="w-full h-24 object-cover rounded-lg mb-3 opacity-50" alt="menu small" />
+                      )}
+                      <ul className="space-y-1 text-sm text-[#A3B1AD]">
+                        {menu.items.map((item, i) => <li key={i}>• {item}</li>)}
+                      </ul>
+                      {menu.special_message && <p className="mt-3 text-[#D4AF37] text-sm italic">{menu.special_message}</p>}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== PHOTOS ==================== */}
+        {activeTab === "photos" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="luxury-card p-8 rounded-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Image className="text-[#D4AF37]" size={24} />
+                <h2 className="text-xl text-[#F9F7F2] font-semibold">Ajouter une Photo</h2>
+              </div>
+              
+              <UploadModeToggle mode={photoUploadMode} setMode={setPhotoUploadMode} />
+              
+              <form onSubmit={handleSubmitPhoto} className="space-y-5">
+                {photoUploadMode === "url" ? (
+                  <div>
+                    <Label className="text-[#A3B1AD] mb-2 block">URL de la photo *</Label>
+                    <Input type="url" placeholder="https://exemple.com/photo.jpg" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} className="input-luxury" data-testid="photo-url-input" />
+                  </div>
+                ) : (
+                  <div>
+                    <Label className="text-[#A3B1AD] mb-2 block">Sélectionner une photo *</Label>
+                    <div 
+                      onClick={() => photoFileRef.current?.click()}
+                      className="border-2 border-dashed border-[#D4AF37]/30 rounded-xl p-8 text-center cursor-pointer hover:border-[#D4AF37]/50 transition-colors"
+                    >
+                      <FileImage className="mx-auto text-[#D4AF37] mb-3" size={40} />
+                      <p className="text-[#A3B1AD] text-sm">Cliquez pour sélectionner une photo</p>
+                      <p className="text-[#A3B1AD]/50 text-xs mt-1">JPG, PNG, GIF, WEBP</p>
+                    </div>
+                    <input 
+                      ref={photoFileRef}
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handlePhotoFileChange} 
+                      className="hidden" 
+                      data-testid="photo-file-input"
+                    />
+                    {photoFile && <p className="text-[#D4AF37] text-sm mt-2">Fichier: {photoFile.name}</p>}
+                  </div>
+                )}
+                
+                {(photoUrl || photoPreview) && (
+                  <div className="rounded-xl overflow-hidden border border-white/10">
+                    <img src={photoPreview || photoUrl} alt="Aperçu" className="w-full h-40 object-cover" onError={(e) => e.target.style.display = 'none'} />
+                  </div>
+                )}
+                
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Légende (optionnel)</Label>
+                  <Input placeholder="Description de la photo" value={photoCaption} onChange={(e) => setPhotoCaption(e.target.value)} className="input-luxury" data-testid="photo-caption-input" />
+                </div>
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Catégorie</Label>
+                  <Select value={photoCategory} onValueChange={setPhotoCategory}>
+                    <SelectTrigger className="input-luxury" data-testid="photo-category-select"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#0F2E24] border border-white/10">
+                      <SelectItem value="restaurant">Restaurant</SelectItem>
+                      <SelectItem value="plats">Plats</SelectItem>
+                      <SelectItem value="clients">Clients</SelectItem>
+                      <SelectItem value="ambiance">Ambiance</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit" disabled={uploadingPhoto} className="w-full btn-gold" data-testid="submit-photo-btn">
+                  {uploadingPhoto ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-[#0F2E24] border-t-transparent rounded-full animate-spin"></div>
+                      Upload en cours...
+                    </span>
+                  ) : (
+                    "Ajouter la Photo"
+                  )}
+                </Button>
+              </form>
+            </motion.div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">Photos ({photos.length})</h3>
+              {loading ? (
+                <div className="grid grid-cols-2 gap-4">{[1, 2, 3, 4].map((i) => <div key={i} className="h-40 bg-white/5 rounded-2xl animate-pulse"></div>)}</div>
+              ) : photos.length === 0 ? (
+                <div className="luxury-card p-8 rounded-2xl text-center"><p className="text-[#A3B1AD]">Aucune photo</p></div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                  {photos.map((photo) => (
+                    <div key={photo.id} className="luxury-card rounded-2xl overflow-hidden group relative">
+                      <img src={photo.image_url.startsWith('/api') ? `${photo.image_url}` : photo.image_url} alt={photo.caption || "Photo"} className="w-full h-36 object-cover" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Button variant="ghost" size="icon" onClick={() => handleDeletePhoto(photo.id)} className="text-white hover:text-red-400" data-testid={`delete-photo-${photo.id}`}>
+                          <Trash2 size={24} />
+                        </Button>
+                      </div>
+                      <div className="p-3">
+                        <span className="text-[10px] bg-[#1A4D3E] text-[#D4AF37] px-2 py-1 rounded-full">{photo.category}</span>
+                        {photo.caption && <p className="text-xs text-[#A3B1AD] mt-1 truncate">{photo.caption}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== VIDEOS ==================== */}
+        {activeTab === "videos" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="luxury-card p-8 rounded-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Video className="text-[#D4AF37]" size={24} />
+                <h2 className="text-xl text-[#F9F7F2] font-semibold">Ajouter une Vidéo</h2>
+              </div>
+              
+              <UploadModeToggle mode={videoUploadMode} setMode={setVideoUploadMode} />
+              
+              <form onSubmit={handleSubmitVideo} className="space-y-5">
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Titre *</Label>
+                  <Input placeholder="Ex: Notre ambiance du weekend" value={videoTitle} onChange={(e) => setVideoTitle(e.target.value)} className="input-luxury" data-testid="video-title-input" />
+                </div>
+                
+                {videoUploadMode === "url" ? (
+                  <>
+                    <div>
+                      <Label className="text-[#A3B1AD] mb-2 block">Type de vidéo</Label>
+                      <Select value={videoType} onValueChange={setVideoType}>
+                        <SelectTrigger className="input-luxury"><SelectValue /></SelectTrigger>
+                        <SelectContent className="bg-[#0F2E24] border border-white/10">
+                          <SelectItem value="youtube">YouTube</SelectItem>
+                          <SelectItem value="facebook">Facebook</SelectItem>
+                          <SelectItem value="direct">Lien direct (MP4)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-[#A3B1AD] mb-2 block">URL de la vidéo *</Label>
+                      <Input placeholder={videoType === "youtube" ? "https://youtube.com/watch?v=..." : "URL de la vidéo"} value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} className="input-luxury" data-testid="video-url-input" />
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <Label className="text-[#A3B1AD] mb-2 block">Sélectionner une vidéo *</Label>
+                    <div 
+                      onClick={() => videoFileRef.current?.click()}
+                      className="border-2 border-dashed border-[#D4AF37]/30 rounded-xl p-8 text-center cursor-pointer hover:border-[#D4AF37]/50 transition-colors"
+                    >
+                      <Video className="mx-auto text-[#D4AF37] mb-3" size={40} />
+                      <p className="text-[#A3B1AD] text-sm">Cliquez pour sélectionner une vidéo</p>
+                      <p className="text-[#A3B1AD]/50 text-xs mt-1">MP4, WEBM</p>
+                    </div>
+                    <input 
+                      ref={videoFileRef}
+                      type="file" 
+                      accept="video/*" 
+                      onChange={handleVideoFileChange} 
+                      className="hidden" 
+                      data-testid="video-file-input"
+                    />
+                    {videoFile && <p className="text-[#D4AF37] text-sm mt-2">Fichier: {videoFile.name}</p>}
+                  </div>
+                )}
+                
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Description (optionnel)</Label>
+                  <Textarea placeholder="Description de la vidéo..." value={videoDescription} onChange={(e) => setVideoDescription(e.target.value)} className="input-luxury min-h-[80px]" />
+                </div>
+                <Button type="submit" disabled={uploadingVideo} className="w-full btn-gold" data-testid="submit-video-btn">
+                  {uploadingVideo ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-[#0F2E24] border-t-transparent rounded-full animate-spin"></div>
+                      Upload en cours...
+                    </span>
+                  ) : (
+                    "Ajouter la Vidéo"
+                  )}
+                </Button>
+              </form>
+            </motion.div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">Vidéos ({videos.length})</h3>
+              {loading ? (
+                <div className="space-y-4">{[1, 2].map((i) => <div key={i} className="h-48 bg-white/5 rounded-2xl animate-pulse"></div>)}</div>
+              ) : videos.length === 0 ? (
+                <div className="luxury-card p-8 rounded-2xl text-center"><p className="text-[#A3B1AD]">Aucune vidéo</p></div>
+              ) : (
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                  {videos.map((video) => (
+                    <div key={video.id} className="luxury-card rounded-2xl overflow-hidden">
+                      {video.video_type === "youtube" && getYouTubeId(video.video_url) && (
+                        <div className="aspect-video">
+                          <iframe src={`https://www.youtube.com/embed/${getYouTubeId(video.video_url)}`} className="w-full h-full" allowFullScreen title={video.title}></iframe>
+                        </div>
+                      )}
+                      {video.video_type === "direct" && (
+                        <video src={video.video_url.startsWith('/api') ? `${video.video_url}` : video.video_url} controls className="w-full aspect-video object-cover"></video>
+                      )}
+                      <div className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-[#F9F7F2] font-semibold">{video.title}</h4>
+                            {video.description && <p className="text-xs text-[#A3B1AD] mt-1">{video.description}</p>}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-[#A3B1AD]">Actif</span>
+                              <Switch checked={video.is_active} onCheckedChange={() => handleToggleVideo(video.id, video.is_active)} />
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteVideo(video.id)} className="text-red-400 hover:text-red-300">
+                              <Trash2 size={18} />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== PROMOTIONS ==================== */}
+        {activeTab === "promos" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="luxury-card p-8 rounded-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Megaphone className="text-[#D4AF37]" size={24} />
+                <h2 className="text-xl text-[#F9F7F2] font-semibold">Nouvelle Promotion</h2>
+              </div>
+              <form onSubmit={handleSubmitPromo} className="space-y-5">
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Titre *</Label>
+                  <Input placeholder="Ex: -20% sur les grillades!" value={promoTitle} onChange={(e) => setPromoTitle(e.target.value)} className="input-luxury" data-testid="promo-title-input" />
+                </div>
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Description *</Label>
+                  <Textarea placeholder="Détails de la promotion..." value={promoDescription} onChange={(e) => setPromoDescription(e.target.value)} className="input-luxury min-h-[80px]" data-testid="promo-desc-input" />
+                </div>
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Type</Label>
+                  <Select value={promoType} onValueChange={setPromoType}>
+                    <SelectTrigger className="input-luxury"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#0F2E24] border border-white/10">
+                      <SelectItem value="Promotion">Promotion</SelectItem>
+                      <SelectItem value="Concert">Concert</SelectItem>
+                      <SelectItem value="Biblique">Biblique</SelectItem>
+                      <SelectItem value="Annonce">Annonce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-[#A3B1AD] mb-2 block">Image (optionnel)</Label>
+                  <UploadModeToggle mode={promoUploadMode} setMode={setPromoUploadMode} />
+                  
+                  {promoUploadMode === "url" ? (
+                    <Input type="url" placeholder="URL de l'image" value={promoImage} onChange={(e) => setPromoImage(e.target.value)} className="input-luxury" />
+                  ) : (
+                    <div>
+                      <div 
+                        onClick={() => promoFileRef.current?.click()}
+                        className="border-2 border-dashed border-[#D4AF37]/30 rounded-xl p-6 text-center cursor-pointer hover:border-[#D4AF37]/50 transition-colors"
+                      >
+                        <FileImage className="mx-auto text-[#D4AF37] mb-2" size={32} />
+                        <p className="text-[#A3B1AD] text-sm">Cliquez pour sélectionner</p>
+                      </div>
+                      <input 
+                        ref={promoFileRef}
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handlePromoFileChange} 
+                        className="hidden" 
+                      />
+                      {promoFile && <p className="text-[#D4AF37] text-sm mt-2">Fichier: {promoFile.name}</p>}
+                    </div>
+                  )}
+                  
+                  {(promoImage || promoPreview) && (
+                    <div className="rounded-xl overflow-hidden border border-white/10 mt-3">
+                      <img src={promoPreview || promoImage} alt="Aperçu" className="w-full h-32 object-cover" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-[#A3B1AD] mb-2 block">Date début</Label>
+                    <Input type="date" value={promoStartDate} onChange={(e) => setPromoStartDate(e.target.value)} className="input-luxury" />
+                  </div>
+                  <div>
+                    <Label className="text-[#A3B1AD] mb-2 block">Date fin</Label>
+                    <Input type="date" value={promoEndDate} onChange={(e) => setPromoEndDate(e.target.value)} className="input-luxury" />
+                  </div>
+                </div>
+                <Button type="submit" disabled={uploadingPromo} className="w-full btn-gold" data-testid="submit-promo-btn">
+                  {uploadingPromo ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-[#0F2E24] border-t-transparent rounded-full animate-spin"></div>
+                      Upload en cours...
+                    </span>
+                  ) : (
+                    "Créer la Promotion"
+                  )}
+                </Button>
+              </form>
+            </motion.div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">Promotions ({promotions.length})</h3>
+              {loading ? (
+                <div className="space-y-4">{[1, 2].map((i) => <div key={i} className="h-32 bg-white/5 rounded-2xl animate-pulse"></div>)}</div>
+              ) : promotions.length === 0 ? (
+                <div className="luxury-card p-8 rounded-2xl text-center"><p className="text-[#A3B1AD]">Aucune promotion</p></div>
+              ) : (
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                  {promotions.map((promo) => (
+                    <div key={promo.id} className="luxury-card p-5 rounded-2xl">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${promo.is_active ? "bg-green-500/20 text-green-400" : "bg-white/10 text-[#A3B1AD]"}`}>
+                            {promo.is_active ? "Active" : "Inactive"}
+                          </span>
+                          <span className="text-[10px] bg-[#1A4D3E] text-[#D4AF37] px-2 py-1 rounded-full uppercase">{promo.promo_type}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch checked={promo.is_active} onCheckedChange={() => handleTogglePromo(promo.id, promo.is_active)} />
+                          <Button variant="ghost" size="icon" onClick={() => handleDeletePromo(promo.id)} className="text-red-400 hover:text-red-300">
+                            <Trash2 size={18} />
+                          </Button>
+                        </div>
+                      </div>
+                      {promo.image_url && <img src={promo.image_url.startsWith('/api') ? `${promo.image_url}` : promo.image_url} alt={promo.title} className="w-full h-32 object-cover rounded-lg mb-3" />}
+                      <h4 className="text-[#F9F7F2] font-semibold">{promo.title}</h4>
+                      <p className="text-sm text-[#A3B1AD] mt-1">{promo.description}</p>
+                      {(promo.start_date || promo.end_date) && (
+                        <p className="text-xs text-[#D4AF37] mt-2">
+                          {promo.start_date && `Du ${promo.start_date}`} {promo.end_date && `au ${promo.end_date}`}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== GESTION PLATS ==================== */}
+        {activeTab === "plats" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">Tous les Plats ({menuItems.length})</h3>
+              <Button onClick={() => { resetMenuForm(); setShowMenuForm(true); }} className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#C4A030] text-sm">
+                <Plus size={16} className="mr-2" /> Ajouter un Plat
+              </Button>
+            </div>
+
+            {showMenuForm && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="luxury-card rounded-2xl p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-[#F9F7F2] font-semibold">{editingMenuItem ? "Modifier le Plat" : "Ajouter un Nouveau Plat"}</h4>
+                  <Button variant="ghost" size="icon" onClick={resetMenuForm} className="text-[#A3B1AD] hover:text-[#F9F7F2] h-8 w-8">
+                    <X size={16} />
+                  </Button>
+                </div>
+                <form onSubmit={handleSubmitMenuItem} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-[#A3B1AD] text-xs mb-1 block">Nom du plat *</Label>
+                      <Input value={menuItemName} onChange={(e) => setMenuItemName(e.target.value)} placeholder="Ex: Attièkè Poisson Braisé" className="input-luxury" />
+                    </div>
+                    <div>
+                      <Label className="text-[#A3B1AD] text-xs mb-1 block">Prix (FCFA) *</Label>
+                      <Input type="number" value={menuItemPrice} onChange={(e) => setMenuItemPrice(e.target.value)} placeholder="3500" className="input-luxury" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-[#A3B1AD] text-xs mb-1 block">Description *</Label>
+                    <Textarea value={menuItemDescription} onChange={(e) => setMenuItemDescription(e.target.value)} placeholder="Description du plat..." className="input-luxury" rows={2} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-[#A3B1AD] text-xs mb-1 block">Catégorie</Label>
+                      <Select value={menuItemCategory} onValueChange={setMenuItemCategory}>
+                        <SelectTrigger className="input-luxury"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {MENU_CATEGORIES.map((cat) => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-end">
+                      <label className="flex items-center gap-2 cursor-pointer pb-2">
+                        <Switch checked={menuItemFeatured} onCheckedChange={setMenuItemFeatured} />
+                        <span className="text-sm text-[#A3B1AD]">Plat vedette</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-[#A3B1AD] text-xs mb-2 block">Photo du plat</Label>
+                    <div className="flex gap-2 mb-3">
+                      <Button type="button" variant={menuItemUploadMode === "url" ? "default" : "outline"} size="sm"
+                        onClick={() => setMenuItemUploadMode("url")}
+                        className={menuItemUploadMode === "url" ? "bg-[#D4AF37] text-[#0F2E24]" : "border-white/20 text-[#A3B1AD]"}>
+                        <Link size={14} className="mr-1" /> URL en ligne
+                      </Button>
+                      <Button type="button" variant={menuItemUploadMode === "file" ? "default" : "outline"} size="sm"
+                        onClick={() => setMenuItemUploadMode("file")}
+                        className={menuItemUploadMode === "file" ? "bg-[#D4AF37] text-[#0F2E24]" : "border-white/20 text-[#A3B1AD]"}>
+                        <Upload size={14} className="mr-1" /> Fichier local
+                      </Button>
+                    </div>
+
+                    {menuItemUploadMode === "url" ? (
+                      <Input value={menuItemImageUrl} onChange={(e) => setMenuItemImageUrl(e.target.value)} placeholder="https://exemple.com/photo.jpg" className="input-luxury" />
+                    ) : (
+                      <div className="space-y-2">
+                        <input type="file" ref={menuItemFileRef} accept="image/*" onChange={handleMenuItemFileChange}
+                          className="block w-full text-sm text-[#A3B1AD] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#D4AF37] file:text-[#0F2E24] hover:file:bg-[#C4A030] cursor-pointer" />
+                      </div>
+                    )}
+
+                    {(menuItemPreview || (menuItemUploadMode === "url" && menuItemImageUrl)) && (
+                      <div className="mt-3 relative w-32 h-24 rounded-lg overflow-hidden border border-white/10">
+                        <img src={menuItemPreview || menuItemImageUrl} alt="Aperçu" className="w-full h-full object-cover"
+                          onError={(e) => { e.target.style.display = 'none'; }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <Button type="submit" disabled={submittingMenuItem} className="w-full bg-[#D4AF37] text-[#0F2E24] hover:bg-[#C4A030]">
+                    {submittingMenuItem ? <RefreshCw size={16} className="animate-spin mr-2" /> : editingMenuItem ? <Pencil size={16} className="mr-2" /> : <Plus size={16} className="mr-2" />}
+                    {submittingMenuItem ? "En cours..." : editingMenuItem ? "Modifier le Plat" : "Ajouter le Plat"}
+                  </Button>
+                </form>
+              </motion.div>
+            )}
+            
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="h-48 bg-white/5 rounded-2xl animate-pulse"></div>)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {menuItems.map((item) => (
+                  <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="luxury-card rounded-2xl overflow-hidden">
+                    <div className="relative h-32">
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        {item.is_featured && <span className="bg-[#D4AF37] text-[#0F2E24] text-[8px] font-bold px-2 py-1 rounded-full">VEDETTE</span>}
+                        {!item.is_available && <span className="bg-red-50 text-white text-[8px] font-bold px-2 py-1 rounded-full">INDISPO</span>}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <span className="text-[10px] text-[#D4AF37] uppercase tracking-wider">{item.category}</span>
+                          <h4 className="text-[#F9F7F2] font-semibold text-sm">{item.name}</h4>
+                        </div>
+                        <span className="text-[#D4AF37] font-semibold">{item.price} F</span>
+                      </div>
+                      <p className="text-xs text-[#A3B1AD] mb-3 line-clamp-2">{item.description}</p>
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-1 cursor-pointer">
+                            <Switch checked={item.is_available} onCheckedChange={() => handleToggleMenuItem(item.id, 'is_available', item.is_available)} className="scale-75" />
+                            <span className="text-[10px] text-[#A3B1AD]">Dispo</span>
+                          </label>
+                          <label className="flex items-center gap-1 cursor-pointer">
+                            <Switch checked={item.is_featured} onCheckedChange={() => handleToggleMenuItem(item.id, 'is_featured', item.is_featured)} className="scale-75" />
+                            <span className="text-[10px] text-[#A3B1AD]">Vedette</span>
+                          </label>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => openEditMenuItem(item)} className="text-[#D4AF37] hover:text-[#C4A030] h-8 w-8">
+                            <Pencil size={14} />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteMenuItem(item.id)} className="text-red-400 hover:text-red-300 h-8 w-8">
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ==================== COMMENTAIRES ==================== */}
+        {activeTab === "commentaires" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg text-[#F9F7F2] font-semibold">
+                Commentaires ({allReviews.length})
+              </h3>
+              <div className="flex gap-2 text-xs">
+                <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
+                  {allReviews.filter(r => r.is_approved).length} approuvé(s)
+                </span>
+                <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">
+                  {allReviews.filter(r => !r.is_approved).length} en attente
+                </span>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-white/5 rounded-2xl animate-pulse"></div>)}
+              </div>
+            ) : allReviews.length === 0 ? (
+              <div className="text-center py-16">
+                <MessageSquare className="mx-auto text-[#A3B1AD]/30 mb-4" size={48} />
+                <p className="text-[#A3B1AD]">Aucun commentaire pour le moment</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {allReviews.map((review) => (
+                  <motion.div
+                    key={review.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={`luxury-card rounded-2xl p-6 ${!review.is_approved ? 'border-l-4 border-l-yellow-500/50' : 'border-l-4 border-l-green-500/50'}`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-[#1A4D3E] flex items-center justify-center text-[#D4AF37] font-semibold text-sm">
+                            {review.author.charAt(0)}
+                          </div>
+                          <div>
+                            <h4 className="text-[#F9F7F2] font-semibold text-sm">{review.author}</h4>
+                            <p className="text-[10px] text-[#A3B1AD]">
+                              {new Date(review.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <span className={`text-[10px] px-2 py-1 rounded-full ${review.is_approved ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                            {review.is_approved ? 'Approuvé' : 'En attente'}
+                          </span>
+                        </div>
+                        <p className="text-[#F9F7F2]/80 text-sm italic ml-13">"{review.comment}"</p>
+                      </div>
+                      <div className="flex items-center gap-2 sm:flex-col">
+                        {!review.is_approved ? (
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await axios.put(`${API}/reviews/${review.id}/approve`);
+                                setAllReviews(prev => prev.map(r => r.id === review.id ? {...r, is_approved: true} : r));
+                                toast.success("Commentaire approuvé");
+                              } catch (e) { toast.error("Erreur"); }
+                            }}
+                            className="bg-green-500/20 text-green-400 hover:bg-green-500/30 text-xs px-3"
+                          >
+                            <Check size={14} className="mr-1" />
+                            Approuver
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await axios.put(`${API}/reviews/${review.id}/hide`);
+                                setAllReviews(prev => prev.map(r => r.id === review.id ? {...r, is_approved: false} : r));
+                                toast.success("Commentaire masqué");
+                              } catch (e) { toast.error("Erreur"); }
+                            }}
+                            className="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 text-xs px-3"
+                          >
+                            <EyeOff size={14} className="mr-1" />
+                            Masquer
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            if (!window.confirm("Supprimer ce commentaire ?")) return;
+                            try {
+                              await axios.delete(`${API}/reviews/${review.id}`);
+                              setAllReviews(prev => prev.filter(r => r.id !== review.id));
+                              toast.success("Commentaire supprimé");
+                            } catch (e) { toast.error("Erreur"); }
+                          }}
+                          className="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs px-3"
+                        >
+                          <Trash2 size={14} className="mr-1" />
+                          Supprimer
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ==================== CAISSE ==================== */}
+        {activeTab === "caisse" && (
+          <div className="space-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="luxury-card rounded-2xl p-4 text-center">
+                <p className="text-[#A3B1AD] text-xs mb-1">Ventes du jour</p>
+                <p className="text-2xl font-bold text-[#D4AF37]">{cashStats?.total_sales || 0}</p>
+              </div>
+              <div className="luxury-card rounded-2xl p-4 text-center">
+                <p className="text-[#A3B1AD] text-xs mb-1">Chiffre d'affaires</p>
+                <p className="text-2xl font-bold text-[#F9F7F2]">{(cashStats?.total_revenue || 0).toLocaleString()} F</p>
+              </div>
+              <div className="luxury-card rounded-2xl p-4 text-center">
+                <p className="text-[#A3B1AD] text-xs mb-1">Espèces</p>
+                <p className="text-2xl font-bold text-green-400">{(cashStats?.cash_total || 0).toLocaleString()} F</p>
+              </div>
+              <div className="luxury-card rounded-2xl p-4 text-center">
+                <p className="text-[#A3B1AD] text-xs mb-1">Mobile Money</p>
+                <p className="text-2xl font-bold text-blue-400">{(cashStats?.mobile_money_total || 0).toLocaleString()} F</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Input 
+                type="date" 
+                value={cashDate} 
+                onChange={(e) => {
+                  setCashDate(e.target.value);
+                  fetchCaisseData(e.target.value);
+                }} 
+                className="bg-white/5 border-white/10 text-[#F9F7F2] w-48" 
+              />
+              <span className="text-[#A3B1AD] text-sm">Plats vendus: <strong className="text-[#F9F7F2]">{cashStats?.total_dishes_sold || 0}</strong></span>
+              <span className="text-[#A3B1AD] text-sm">Ticket moyen: <strong className="text-[#D4AF37]">{(cashStats?.average_ticket || 0).toLocaleString()} F</strong></span>
+            </div>
+
+            <div className="luxury-card rounded-2xl p-6">
+              <h3 className="text-lg font-semibold text-[#D4AF37] mb-4 flex items-center gap-2">
+                <Plus size={20} />
+                Enregistrer une vente
+              </h3>
+              <form onSubmit={handleCashSaleSubmit} className="space-y-4">
+                {cashItems.map((item, index) => (
+                  <div key={index} className="flex gap-3 items-end">
+                    <div className="flex-1">
+                      {index === 0 && <Label className="text-[#A3B1AD] text-xs mb-1 block">Plat</Label>}
+                      <select 
+                        value={item.name} 
+                        onChange={(e) => {
+                          const selected = menuItems.find(m => m.name === e.target.value);
+                          const newItems = [...cashItems];
+                          newItems[index] = { ...newItems[index], name: e.target.value, price: selected ? selected.price : newItems[index].price };
+                          setCashItems(newItems);
+                        }}
+                        className="w-full bg-white/5 border border-white/10 text-[#F9F7F2] rounded-lg px-3 py-2 text-sm"
+                      >
+                        <option value="">Choisir un plat...</option>
+                        {menuItems.filter(m => m.is_available).map(m => (
+                          <option key={m.id} value={m.name} className="bg-[#0F2E24]">{m.name} - {m.price.toLocaleString()} F</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="w-20">
+                      {index === 0 && <Label className="text-[#A3B1AD] text-xs mb-1 block">Qté</Label>}
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        value={item.quantity} 
+                        onChange={(e) => updateCashItem(index, "quantity", e.target.value)} 
+                        className="bg-white/5 border-white/10 text-[#F9F7F2]" 
+                      />
+                    </div>
+                    <div className="w-28">
+                      {index === 0 && <Label className="text-[#A3B1AD] text-xs mb-1 block">Prix</Label>}
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        value={item.price} 
+                        onChange={(e) => updateCashItem(index, "price", e.target.value)} 
+                        className="bg-white/5 border-white/10 text-[#F9F7F2]" 
+                      />
+                    </div>
+                    {cashItems.length > 1 && (
+                      <Button type="button" size="sm" onClick={() => removeCashItem(index)} className="bg-red-500/20 text-red-400 hover:bg-red-500/30 mb-0.5">
+                        <Trash2 size={14} />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                
+                <div className="flex gap-4 items-center">
+                  <Button type="button" onClick={addCashItem} className="bg-white/5 text-[#A3B1AD] hover:bg-white/10 text-sm">
+                    <Plus size={16} className="mr-1" /> Ajouter un plat
+                  </Button>
+                  <span className="text-[#D4AF37] font-bold text-lg ml-auto">
+                    Total: {cashItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()} FCFA
+                  </span>
+                </div>
+
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <Label className="text-[#A3B1AD] text-xs mb-1 block">Mode de paiement</Label>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setCashPaymentMethod("especes")}
+                        className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+                          cashPaymentMethod === "especes"
+                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                            : "bg-white/5 text-[#A3B1AD] border border-white/10"
+                        }`}
+                      >
+                        Espèces
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCashPaymentMethod("mobile_money")}
+                        className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+                          cashPaymentMethod === "mobile_money"
+                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                            : "bg-white/5 text-[#A3B1AD] border border-white/10"
+                        }`}
+                      >
+                        Mobile Money
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-[#A3B1AD] text-xs mb-1 block">Note (optionnel)</Label>
+                    <Input 
+                      value={cashNote} 
+                      onChange={(e) => setCashNote(e.target.value)} 
+                      placeholder="Ex: Table 4, client régulier..." 
+                      className="bg-white/5 border-white/10 text-[#F9F7F2]" 
+                    />
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={submittingCash}
+                  className="w-full bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F2CC8F] py-3 text-base font-semibold"
+                >
+                  {submittingCash ? "Enregistrement..." : "Enregistrer la vente"}
+                </Button>
+              </form>
+            </div>
+
+            {cashStats?.top_dishes?.length > 0 && (
+              <div className="luxury-card rounded-2xl p-6">
+                <h3 className="text-lg font-semibold text-[#D4AF37] mb-4">Top plats vendus</h3>
+                <div className="space-y-3">
+                  {cashStats.top_dishes.map((dish, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center text-xs font-bold">{index + 1}</span>
+                        <span className="text-[#F9F7F2] text-sm">{dish.name}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-[#A3B1AD] text-sm">{dish.quantity} vendus</span>
+                        <span className="text-[#D4AF37] text-sm font-semibold">{dish.revenue.toLocaleString()} F</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="luxury-card rounded-2xl p-6">
+              <h3 className="text-lg font-semibold text-[#D4AF37] mb-4">Historique des ventes</h3>
+              {cashSales.length === 0 ? (
+                <p className="text-[#A3B1AD] text-center py-8">Aucune vente enregistrée pour cette date</p>
+              ) : (
+                <div className="space-y-3">
+                  {cashSales.map((sale) => (
+                    <div key={sale.id} className="flex items-center justify-between py-3 px-4 bg-white/5 rounded-xl">
+                      <div>
+                        <p className="text-[#F9F7F2] text-sm font-medium">
+                          {sale.items.map(i => `${i.name} x${i.quantity}`).join(", ")}
+                        </p>
+                        <p className="text-[#A3B1AD] text-xs mt-1">
+                          {new Date(sale.created_at).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})} 
+                          {" - "}
+                          <span className={sale.payment_method === "especes" ? "text-green-400" : "text-blue-400"}>
+                            {sale.payment_method === "especes" ? "Espèces" : "Mobile Money"}
+                          </span>
+                          {sale.note && <span className="ml-2 text-[#A3B1AD]/60">({sale.note})</span>}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[#D4AF37] font-bold">{sale.total.toLocaleString()} F</span>
+                        <Button 
+                          size="sm"
+                          onClick={() => requestDeleteSale(sale.id)}
+                          className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
 
+      {/* Modal confirmation déconnexion */}
       <AnimatePresence>
-        {showDeleteAuth && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#0A1F1A] border border-[#D4AF37]/40 rounded-[2.5rem] p-12 max-w-sm w-full text-center shadow-[0_0_50px_rgba(212,175,55,0.15)]">
-              <ShieldAlert size={56} className="text-red-500 mx-auto mb-8 shadow-inner" />
-              <h3 className="text-3xl font-bold text-white mb-4 font-display">SÉCURITÉ ADMIN</h3>
-              <p className="text-gray-400 text-sm mb-10 leading-relaxed uppercase tracking-widest font-semibold opacity-70">Saisie du Code Maître Requise pour suppression définitive.</p>
-              <div className="mb-10"><Input type="password" placeholder="••••••••" className="bg-black/60 border-[#D4AF37]/30 text-[#D4AF37] text-center text-3xl tracking-[0.6em] h-20 rounded-2xl shadow-inner font-black outline-none focus:border-[#D4AF37]" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} autoFocus /></div>
-              <div className="flex gap-4">
-                <Button onClick={() => {setShowDeleteAuth(false); setDeletePassword("");}} className="flex-1 bg-white/5 border border-white/10 text-white font-bold py-6 rounded-2xl hover:bg-white/10 transition-all uppercase tracking-widest text-xs">Fermer</Button>
-                <Button onClick={confirmDeleteSale} className="flex-1 bg-gradient-to-br from-red-700 to-red-500 text-white border-0 shadow-2xl shadow-red-900/40 py-6 rounded-2xl font-black uppercase tracking-widest text-xs active:scale-95 transition-all">Annihiler</Button>
+        {showLogoutConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowLogoutConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#0F2E24] border border-white/10 rounded-2xl p-6 w-full max-w-sm text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <LogOut size={32} className="text-[#D4AF37] mx-auto mb-3" />
+              <h3 className="text-lg font-bold text-[#F9F7F2] mb-2">Se déconnecter ?</h3>
+              <p className="text-[#A3B1AD] text-sm mb-5">Voulez-vous vraiment vous déconnecter ?</p>
+              <div className="flex gap-3">
+                <Button onClick={() => setShowLogoutConfirm(false)} className="flex-1 bg-white/10 text-[#A3B1AD] hover:bg-white/20">
+                  Annuler
+                </Button>
+                <Button onClick={confirmLogout} className="flex-1 bg-red-500 hover:bg-red-600 text-white">
+                  Déconnexion
+                </Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* --- MODALE SÉCURISÉE POUR SUPPRESSION --- */}
       <AnimatePresence>
-        {showLogoutConfirm && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={() => setShowLogoutConfirm(false)}>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#0F2E24] border border-white/10 rounded-[2rem] p-10 max-w-xs w-full text-center shadow-2xl" onClick={e=>e.stopPropagation()}>
-              <LogOut size={36} className="text-[#D4AF37] mx-auto mb-6" />
-              <p className="text-white font-bold mb-8 text-xl">Quitter Armando Anzan ?</p>
-              <div className="flex gap-4"><Button onClick={()=>setShowLogoutConfirm(false)} className="flex-1 bg-white/5 border border-white/10 text-white py-6 rounded-xl font-bold">Rester</Button><Button onClick={confirmLogout} className="flex-1 bg-red-600 text-white py-6 rounded-xl font-bold shadow-lg shadow-red-900/30">Sortir</Button></div>
+        {showDeleteAuth && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+            onClick={() => setShowDeleteAuth(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#0A1F1A] border border-[#D4AF37]/30 rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl shadow-black/50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                <ShieldAlert size={40} className="text-red-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#F9F7F2] mb-2 font-display">Sécurité Admin</h3>
+              <p className="text-[#A3B1AD] text-sm mb-8 leading-relaxed">
+                Action sensible détectée. Veuillez entrer le mot de passe de confirmation pour supprimer cette vente.
+              </p>
+              
+              <div className="mb-8">
+                <Input 
+                  type="password" 
+                  placeholder="Mot de passe secret" 
+                  className="input-luxury text-center text-xl tracking-[0.5em] h-14"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <Button 
+                  onClick={() => {setShowDeleteAuth(false); setDeletePassword("");}} 
+                  className="flex-1 bg-white/5 border border-white/10 text-[#A3B1AD] hover:bg-white/10 py-6"
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  onClick={confirmDeleteSale} 
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white border-0 shadow-lg shadow-red-900/20 py-6 font-bold"
+                >
+                  Confirmer
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
