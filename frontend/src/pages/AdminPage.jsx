@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-const API = "/api";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -10,7 +9,10 @@ import { Switch } from "../components/ui/switch";
 import { toast } from "sonner";
 import { Plus, Trash2, Calendar, Image, Utensils, RefreshCw, Video, Megaphone, LogOut, Lock, User, Eye, EyeOff, X, Upload, Link, FileImage, Home, LayoutDashboard, MessageSquare, Check, XCircle, ShoppingCart, Pencil } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+
+// DÉFINITION DE L'API EN DUR POUR ÉVITER LES ERREURS D'IMPORT
+const API = "/api";
 
 const AdminPage = () => {
   // Auth state
@@ -108,6 +110,7 @@ const AdminPage = () => {
   const menuItemFileRef = useRef(null);
 
   const MENU_CATEGORIES = ["Plats Ivoiriens", "Grillades", "Boissons", "Spécialités", "Entrées", "Desserts"];
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Check authentication on mount
   useEffect(() => {
@@ -155,8 +158,6 @@ const AdminPage = () => {
       setLoginLoading(false);
     }
   };
-
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);
@@ -1525,13 +1526,13 @@ const AdminPage = () => {
                   <div>
                     <Label className="text-[#A3B1AD] text-xs mb-2 block">Photo du plat</Label>
                     <div className="flex gap-2 mb-3">
-                      <Button type="button" variant={menuItemUploadMode === "url" ? "default" : "outline"} size="sm"
-                        onClick={() => setMenuItemUploadMode("url")}
+                      <Button type="button" variant={menuItemUploadMode === "url" ? "default" : "outline"} size="sm" 
+                        onClick={() => setMenuItemUploadMode("url")} 
                         className={menuItemUploadMode === "url" ? "bg-[#D4AF37] text-[#0F2E24]" : "border-white/20 text-[#A3B1AD]"}>
                         <Link size={14} className="mr-1" /> URL en ligne
                       </Button>
-                      <Button type="button" variant={menuItemUploadMode === "file" ? "default" : "outline"} size="sm"
-                        onClick={() => setMenuItemUploadMode("file")}
+                      <Button type="button" variant={menuItemUploadMode === "file" ? "default" : "outline"} size="sm" 
+                        onClick={() => setMenuItemUploadMode("file")} 
                         className={menuItemUploadMode === "file" ? "bg-[#D4AF37] text-[#0F2E24]" : "border-white/20 text-[#A3B1AD]"}>
                         <Upload size={14} className="mr-1" /> Fichier local
                       </Button>
@@ -1541,14 +1542,14 @@ const AdminPage = () => {
                       <Input value={menuItemImageUrl} onChange={(e) => setMenuItemImageUrl(e.target.value)} placeholder="https://exemple.com/photo.jpg" className="input-luxury" />
                     ) : (
                       <div className="space-y-2">
-                        <input type="file" ref={menuItemFileRef} accept="image/*" onChange={handleMenuItemFileChange}
+                        <input type="file" ref={menuItemFileRef} accept="image/*" onChange={handleMenuItemFileChange} 
                           className="block w-full text-sm text-[#A3B1AD] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#D4AF37] file:text-[#0F2E24] hover:file:bg-[#C4A030] cursor-pointer" />
                       </div>
                     )}
 
                     {(menuItemPreview || (menuItemUploadMode === "url" && menuItemImageUrl)) && (
                       <div className="mt-3 relative w-32 h-24 rounded-lg overflow-hidden border border-white/10">
-                        <img src={menuItemPreview || menuItemImageUrl} alt="Aperçu" className="w-full h-full object-cover"
+                        <img src={menuItemPreview || menuItemImageUrl} alt="Aperçu" className="w-full h-full object-cover" 
                           onError={(e) => { e.target.style.display = 'none'; }} />
                       </div>
                     )}
@@ -1745,14 +1746,14 @@ const AdminPage = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <Input
-                type="date"
-                value={cashDate}
+              <Input 
+                type="date" 
+                value={cashDate} 
                 onChange={(e) => {
                   setCashDate(e.target.value);
                   fetchCaisseData(e.target.value);
-                }}
-                className="bg-white/5 border-white/10 text-[#F9F7F2] w-48"
+                }} 
+                className="bg-white/5 border-white/10 text-[#F9F7F2] w-48" 
               />
               <span className="text-[#A3B1AD] text-sm">Plats vendus: <strong className="text-[#F9F7F2]">{cashStats?.total_dishes_sold || 0}</strong></span>
               <span className="text-[#A3B1AD] text-sm">Ticket moyen: <strong className="text-[#D4AF37]">{(cashStats?.average_ticket || 0).toLocaleString()} F</strong></span>
@@ -1768,8 +1769,8 @@ const AdminPage = () => {
                   <div key={index} className="flex gap-3 items-end">
                     <div className="flex-1">
                       {index === 0 && <Label className="text-[#A3B1AD] text-xs mb-1 block">Plat</Label>}
-                      <select
-                        value={item.name}
+                      <select 
+                        value={item.name} 
                         onChange={(e) => {
                           const selected = menuItems.find(m => m.name === e.target.value);
                           const newItems = [...cashItems];
@@ -1786,22 +1787,22 @@ const AdminPage = () => {
                     </div>
                     <div className="w-20">
                       {index === 0 && <Label className="text-[#A3B1AD] text-xs mb-1 block">Qté</Label>}
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateCashItem(index, "quantity", e.target.value)}
-                        className="bg-white/5 border-white/10 text-[#F9F7F2]"
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        value={item.quantity} 
+                        onChange={(e) => updateCashItem(index, "quantity", e.target.value)} 
+                        className="bg-white/5 border-white/10 text-[#F9F7F2]" 
                       />
                     </div>
                     <div className="w-28">
                       {index === 0 && <Label className="text-[#A3B1AD] text-xs mb-1 block">Prix</Label>}
-                      <Input
-                        type="number"
-                        min="0"
-                        value={item.price}
-                        onChange={(e) => updateCashItem(index, "price", e.target.value)}
-                        className="bg-white/5 border-white/10 text-[#F9F7F2]"
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        value={item.price} 
+                        onChange={(e) => updateCashItem(index, "price", e.target.value)} 
+                        className="bg-white/5 border-white/10 text-[#F9F7F2]" 
                       />
                     </div>
                     {cashItems.length > 1 && (
@@ -1811,7 +1812,7 @@ const AdminPage = () => {
                     )}
                   </div>
                 ))}
-
+                
                 <div className="flex gap-4 items-center">
                   <Button type="button" onClick={addCashItem} className="bg-white/5 text-[#A3B1AD] hover:bg-white/10 text-sm">
                     <Plus size={16} className="mr-1" /> Ajouter un plat
@@ -1851,17 +1852,17 @@ const AdminPage = () => {
                   </div>
                   <div className="flex-1">
                     <Label className="text-[#A3B1AD] text-xs mb-1 block">Note (optionnel)</Label>
-                    <Input
-                      value={cashNote}
-                      onChange={(e) => setCashNote(e.target.value)}
-                      placeholder="Ex: Table 5, client régulier..."
-                      className="bg-white/5 border-white/10 text-[#F9F7F2]"
+                    <Input 
+                      value={cashNote} 
+                      onChange={(e) => setCashNote(e.target.value)} 
+                      placeholder="Ex: Table 5, client régulier..." 
+                      className="bg-white/5 border-white/10 text-[#F9F7F2]" 
                     />
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
+                <Button 
+                  type="submit" 
                   disabled={submittingCash}
                   className="w-full bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F2CC8F] py-3 text-base font-semibold"
                 >
@@ -1913,7 +1914,7 @@ const AdminPage = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-[#D4AF37] font-bold">{sale.total.toLocaleString()} F</span>
-                        <Button
+                        <Button 
                           size="sm"
                           onClick={async () => {
                             if (!window.confirm("Supprimer cette vente ?")) return;
