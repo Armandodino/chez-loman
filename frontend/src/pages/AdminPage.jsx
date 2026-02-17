@@ -127,6 +127,7 @@ const AdminPage = () => {
   // Check authentication on mount
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuth = async () => {
@@ -460,7 +461,143 @@ const AdminPage = () => {
     } catch (error) { toast.error("Erreur"); } finally { setSavingHero(false); }
   };
 
-  // Reusable Upload Mode Toggle with Theme Support
+  const resetMenuForm = () => {
+    setShowMenuForm(false);
+    setEditingMenuItem(null);
+    setMenuItemName("");
+    setMenuItemDescription("");
+    setMenuItemPrice("");
+    setMenuItemCategory("Plats Ivoiriens");
+    setMenuItemImageUrl("");
+    setMenuItemUploadMode("url");
+    setMenuItemFile(null);
+    setMenuItemPreview("");
+    setMenuItemFeatured(false);
+    if (menuItemFileRef.current) menuItemFileRef.current.value = "";
+  };
+
+  const openEditMenuItem = (item) => {
+    setEditingMenuItem(item);
+    setMenuItemName(item.name);
+    setMenuItemDescription(item.description);
+    setMenuItemPrice(item.price.toString());
+    setMenuItemCategory(item.category);
+    setMenuItemImageUrl(item.image_url);
+    setMenuItemFeatured(item.is_featured);
+    setMenuItemUploadMode("url");
+    setMenuItemFile(null);
+    setMenuItemPreview("");
+    setShowMenuForm(true);
+  };
+
+  const handleSubmitMenuItem = async (e) => {
+    e.preventDefault();
+    if (!menuItemName.trim() || !menuItemDescription.trim() || !menuItemPrice) {
+      toast.error("Remplissez tous les champs obligatoires");
+      return;
+    }
+    setSubmittingMenuItem(true);
+    let finalImageUrl = menuItemImageUrl;
+    if (menuItemUploadMode === "file") {
+      if (menuItemFile) {
+        try { finalImageUrl = await uploadFile(menuItemFile); } catch (error) {
+          toast.error("Erreur upload"); setSubmittingMenuItem(false); return;
+        }
+      }
+    }
+    try {
+      if (editingMenuItem) {
+        const params = new URLSearchParams();
+        params.append("name", menuItemName);
+        params.append("description", menuItemDescription);
+        params.append("price", menuItemPrice);
+        params.append("category", menuItemCategory);
+        params.append("is_featured", menuItemFeatured.toString());
+        if (finalImageUrl) params.append("image_url", finalImageUrl);
+        await axios.put(`${API}/menu/${editingMenuItem.id}?${params.toString()}`);
+        toast.success("Plat modifié!");
+      } else {
+        await axios.post(`${API}/menu`, {
+          name: menuItemName, description: menuItemDescription, price: parseInt(menuItemPrice),
+          category: menuItemCategory, image_url: finalImageUrl, is_featured: menuItemFeatured
+        });
+        toast.success("Plat ajouté!");
+      }
+      resetMenuForm(); fetchData();
+    } catch (error) { toast.error("Erreur"); } finally { setSubmittingMenuItem(false); }
+  };
+
+  const handleToggleMenuItem = async (itemId, field, currentValue) => {
+    try {
+      const params = new URLSearchParams();
+      params.append(field, (!currentValue).toString());
+      await axios.put(`${API}/menu/${itemId}?${params.toString()}`);
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const handleDeleteMenuItem = async (itemId) => {
+    if (!window.confirm("Supprimer ce plat?")) return;
+    try {
+      await axios.delete(`${API}/menu/${itemId}`);
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const handleToggleVideo = async (videoId, isActive) => {
+    try {
+      await axios.put(`${API}/videos/${videoId}?is_active=${!isActive}`);
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const handleDeleteVideo = async (videoId) => {
+    if (!window.confirm("Supprimer cette vidéo?")) return;
+    try {
+      await axios.delete(`${API}/videos/${videoId}`);
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const handleTogglePromo = async (promoId, isActive) => {
+    try {
+      await axios.put(`${API}/promotions/${promoId}`, { is_active: !isActive });
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const handleDeletePromo = async (promoId) => {
+    if (!window.confirm("Supprimer cette promotion?")) return;
+    try {
+      await axios.delete(`${API}/promotions/${promoId}`);
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const handleDeletePhoto = async (photoId) => {
+    if (!window.confirm("Supprimer cette photo?")) return;
+    try {
+      await axios.delete(`${API}/gallery/${photoId}`);
+      fetchData();
+    } catch (error) { toast.error("Erreur"); }
+  };
+
+  const getYouTubeId = (url) => {
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    return match ? match[1] : null;
+  };
+
+  const tabs = [
+    { id: "accueil", label: "Accueil", icon: Home },
+    { id: "menu", label: "Menu du Jour", icon: Calendar },
+    { id: "photos", label: "Photos", icon: Image },
+    { id: "videos", label: "Vidéos", icon: Video },
+    { id: "promos", label: "Promotions", icon: Megaphone },
+    { id: "plats", label: "Gestion Plats", icon: Utensils },
+    { id: "commentaires", label: "Commentaires", icon: MessageSquare },
+    { id: "caisse", label: "Caisse", icon: ShoppingCart },
+  ];
+
   const UploadModeToggle = ({ mode, setMode }) => (
     <div className="flex gap-2 mb-4">
       <button
@@ -469,7 +606,7 @@ const AdminPage = () => {
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
           mode === "url" 
           ? "bg-[#D4AF37] text-[#0F2E24]" 
-          : "bg-white dark:bg-white/5 text-gray-700 dark:text-[#A3B1AD] border border-gray-200 dark:border-white/10"
+          : "bg-white dark:bg-white/5 text-gray-700 dark:text-[#A3B1AD] border border-gray-200 dark:border-white/10 shadow-sm"
         }`}
       >
         <Link size={16} /> Lien URL
@@ -480,7 +617,7 @@ const AdminPage = () => {
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
           mode === "file" 
           ? "bg-[#D4AF37] text-[#0F2E24]" 
-          : "bg-white dark:bg-white/5 text-gray-700 dark:text-[#A3B1AD] border border-gray-200 dark:border-white/10"
+          : "bg-white dark:bg-white/5 text-gray-700 dark:text-[#A3B1AD] border border-gray-200 dark:border-white/10 shadow-sm"
         }`}
       >
         <Upload size={16} /> Depuis l'appareil
@@ -540,7 +677,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#05100D] pt-32 pb-24">
+    <div className="min-h-screen bg-white dark:bg-[#05100D] pt-32 pb-24 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -551,10 +688,10 @@ const AdminPage = () => {
             <RouterLink to="/dashboard" className="bg-[#D4AF37] text-white rounded-full px-6 py-2 flex items-center gap-2 text-sm font-semibold transition-all">
               <LayoutDashboard size={16} /> Dashboard Pro
             </RouterLink>
-            <Button onClick={fetchData} className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#A3B1AD] hover:text-[#D4AF37] rounded-full px-6">
+            <Button onClick={fetchData} className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#A3B1AD] hover:text-[#D4AF37] rounded-full px-6 shadow-sm">
               <RefreshCw size={16} className="mr-2" /> Actualiser
             </Button>
-            <Button onClick={handleLogout} className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-500 dark:text-red-400 rounded-full px-6">
+            <Button onClick={handleLogout} className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-500 dark:text-red-400 rounded-full px-6 shadow-sm">
               <LogOut size={16} className="mr-2" /> Déconnexion
             </Button>
           </div>
@@ -567,7 +704,7 @@ const AdminPage = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? "bg-[#D4AF37] text-white"
+                  ? "bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20"
                   : "bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-[#A3B1AD] border border-gray-200 dark:border-white/10 hover:border-[#D4AF37]/50"
               }`}
             >
@@ -583,38 +720,38 @@ const AdminPage = () => {
               <div className="flex items-center gap-3 mb-6"><Home className="text-[#D4AF37]" size={24} /><h2 className="text-xl text-gray-900 dark:text-[#F9F7F2] font-semibold">Message d'Accueil</h2></div>
               <form onSubmit={handleSubmitHero} className="space-y-5">
                 <div>
-                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Titre - Ligne 1</Label>
+                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Titre - Ligne 1</Label>
                   <Input placeholder="Ex: Ici c'est manger" value={heroTitleLine1} onChange={(e) => setHeroTitleLine1(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
                 </div>
                 <div>
-                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Titre - Ligne 2 (Doré)</Label>
+                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Titre - Ligne 2 (Doré)</Label>
                   <Input placeholder="Ex: bien hein" value={heroTitleLine2} onChange={(e) => setHeroTitleLine2(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
                 </div>
                 <div>
-                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Description</Label>
+                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Description</Label>
                   <Textarea placeholder="Ex: Découvrez les meilleures saveurs de Yopougon..." value={heroDescription} onChange={(e) => setHeroDescription(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 min-h-[100px]" />
                 </div>
                 <div>
-                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Image d'arrière-plan</Label>
+                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Image d'arrière-plan</Label>
                   <UploadModeToggle mode={heroUploadMode} setMode={setHeroUploadMode} />
                   {heroUploadMode === "url" ? (
-                    <Input type="url" placeholder="Lien vers l'image" value={heroBackgroundImage} onChange={(e) => setHeroBackgroundImage(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" />
+                    <Input type="url" placeholder="Lien vers l'image" value={heroBackgroundImage} onChange={(e) => setHeroBackgroundImage(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
                   ) : (
-                    <div onClick={() => heroFileRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-[#D4AF37]/30 rounded-xl p-6 text-center cursor-pointer hover:border-[#D4AF37]/50">
+                    <div onClick={() => heroFileRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-[#D4AF37]/30 rounded-xl p-6 text-center cursor-pointer hover:border-[#D4AF37]/50 transition-all">
                       <FileImage className="mx-auto text-[#D4AF37] mb-2" size={32} />
-                      <p className="text-gray-500 text-sm">Cliquez pour sélectionner une image</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Cliquez pour sélectionner une image</p>
                       <input ref={heroFileRef} type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; if(f){ setHeroFile(f); setHeroPreview(URL.createObjectURL(f)); }}} className="hidden" />
-                      {heroFile && <p className="text-[#D4AF37] text-sm mt-2">{heroFile.name}</p>}
+                      {heroFile && <p className="text-[#D4AF37] text-sm mt-2 font-medium">{heroFile.name}</p>}
                     </div>
                   )}
                 </div>
-                <Button type="submit" disabled={savingHero} className="w-full bg-[#D4AF37] text-white py-4 hover:bg-[#C4A030]">{savingHero ? "Enregistrement..." : "Enregistrer les modifications"}</Button>
+                <Button type="submit" disabled={savingHero} className="w-full bg-[#D4AF37] text-white py-4 hover:bg-[#C4A030] shadow-lg shadow-[#D4AF37]/20 transition-all">{savingHero ? "Enregistrement..." : "Enregistrer les modifications"}</Button>
               </form>
             </motion.div>
             <div className="space-y-4">
               <h3 className="text-lg text-gray-900 dark:text-[#F9F7F2] font-semibold">Aperçu en direct</h3>
-              <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-white/10">
-                <img src={heroPreview || heroBackgroundImage || "https://customer-assets.emergentagent.com/job_loman-restaurant/artifacts/jde9y3pb_chl.jpg"} className="w-full h-full object-cover" alt="Preview" />
+              <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-white/10 group">
+                <img src={heroPreview || heroBackgroundImage || "https://customer-assets.emergentagent.com/job_loman-restaurant/artifacts/jde9y3pb_chl.jpg"} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Preview" />
                 <div className="absolute inset-0 bg-black/60 p-6 flex flex-col justify-center">
                   <h2 className="text-2xl font-accent italic text-white">{heroTitleLine1 || "Ici c'est manger"}<br/><span className="text-[#D4AF37]">{heroTitleLine2 || "bien hein"}</span></h2>
                   <p className="text-xs text-white/70 mt-2 line-clamp-2">{heroDescription || "Votre description apparaîtra ici..."}</p>
@@ -627,46 +764,46 @@ const AdminPage = () => {
         {/* MENU DU JOUR */}
         {activeTab === "menu" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-8 rounded-2xl">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-8 rounded-2xl shadow-sm">
               <div className="flex items-center gap-3 mb-6"><Calendar className="text-[#D4AF37]" size={24} /><h2 className="text-xl text-gray-900 dark:text-[#F9F7F2] font-semibold">Nouveau Menu du Jour</h2></div>
               <form onSubmit={handleSubmitMenu} className="space-y-5">
-                <div><Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Date</Label><Input type="date" value={menuDate} onChange={(e) => setMenuDate(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" /></div>
+                <div><Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Date</Label><Input type="date" value={menuDate} onChange={(e) => setMenuDate(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" /></div>
                 <div>
-                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Plats</Label>
+                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Plats</Label>
                   {menuItemsList.map((item, index) => (
                     <div key={index} className="flex gap-2 mb-2">
-                      <Input placeholder={`Plat ${index+1}`} value={item} onChange={(e) => { const n = [...menuItemsList]; n[index] = e.target.value; setMenuItemsList(n); }} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
-                      {menuItemsList.length > 1 && <Button type="button" onClick={() => setMenuItemsList(menuItemsList.filter((_, i) => i !== index))} className="bg-red-500 text-white"><X size={18}/></Button>}
+                      <Input placeholder={`Ex: Attiéké Poisson - Plat ${index+1}`} value={item} onChange={(e) => { const n = [...menuItemsList]; n[index] = e.target.value; setMenuItemsList(n); }} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
+                      {menuItemsList.length > 1 && <Button type="button" onClick={() => setMenuItemsList(menuItemsList.filter((_, i) => i !== index))} className="bg-red-500 hover:bg-red-600 text-white shadow-sm"><X size={18}/></Button>}
                     </div>
                   ))}
-                  <Button type="button" onClick={() => setMenuItemsList([...menuItemsList, ""])} className="text-[#D4AF37] text-xs">+ Ajouter un plat</Button>
+                  <Button type="button" onClick={() => setMenuItemsList([...menuItemsList, ""])} className="text-[#D4AF37] text-xs font-bold hover:underline">+ Ajouter un plat</Button>
                 </div>
                 <div className="mt-4">
-                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block">Affiche (Image)</Label>
+                  <Label className="text-gray-600 dark:text-[#A3B1AD] mb-2 block font-medium">Affiche (Image)</Label>
                   <UploadModeToggle mode={menuUploadMode} setMode={setMenuUploadMode} />
                   {menuUploadMode === "url" ? (
-                    <Input placeholder="Lien image" value={menuImageUrl} onChange={e => setMenuImageUrl(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" />
+                    <Input placeholder="Lien vers l'image du menu" value={menuImageUrl} onChange={e => setMenuImageUrl(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
                   ) : (
-                    <div onClick={() => menuFileRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-white/10 p-6 rounded-xl text-center cursor-pointer hover:border-[#D4AF37]">
-                      <Upload className="mx-auto text-[#D4AF37] mb-2" /><p className="text-xs text-gray-500">Uploader l'affiche</p>
+                    <div onClick={() => menuFileRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-white/10 p-6 rounded-xl text-center cursor-pointer hover:border-[#D4AF37] transition-all">
+                      <Upload className="mx-auto text-[#D4AF37] mb-2" /><p className="text-xs text-gray-500 dark:text-gray-400">Uploader l'affiche du jour</p>
                       <input ref={menuFileRef} type="file" className="hidden" accept="image/*" onChange={handleMenuFileChange} />
                     </div>
                   )}
-                  {(menuPreview || menuImageUrl) && <img src={menuPreview || menuImageUrl} className="mt-3 w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200" alt="Preview" />}
+                  {(menuPreview || menuImageUrl) && <img src={menuPreview || menuImageUrl} className="mt-3 w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200 dark:border-white/10" alt="Preview" />}
                 </div>
-                <Button type="submit" className="w-full bg-[#D4AF37] text-white py-4">Publier le Menu</Button>
+                <Button type="submit" className="w-full bg-[#D4AF37] text-white py-4 font-bold shadow-lg shadow-[#D4AF37]/20 transition-all hover:bg-[#C4A030]">Publier le Menu</Button>
               </form>
             </motion.div>
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               <h3 className="text-lg text-gray-900 dark:text-[#F9F7F2] font-semibold">Menus récents</h3>
               {dailyMenus.map(menu => (
-                <div key={menu.id} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-5 rounded-xl flex justify-between items-start">
+                <div key={menu.id} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-5 rounded-xl flex justify-between items-start shadow-sm">
                   <div>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${menu.is_active ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"}`}>{menu.is_active ? "Actif" : "Inactif"}</span>
-                    <p className="text-gray-900 dark:text-white font-semibold mt-2">{new Date(menu.date).toLocaleDateString()}</p>
-                    <p className="text-xs text-gray-500 mt-1">{menu.items.join(", ")}</p>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${menu.is_active ? "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400" : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-400"}`}>{menu.is_active ? "Actif" : "Inactif"}</span>
+                    <p className="text-gray-900 dark:text-white font-semibold mt-2">{new Date(menu.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{menu.items.join(", ")}</p>
                   </div>
-                  <Button onClick={() => handleDeleteMenu(menu.id)} className="text-red-500"><Trash2 size={18}/></Button>
+                  <Button onClick={() => handleDeleteMenu(menu.id)} variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={18}/></Button>
                 </div>
               ))}
             </div>
@@ -676,34 +813,41 @@ const AdminPage = () => {
         {/* PROMOTIONS / EVENTS */}
         {activeTab === "promos" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-8 rounded-2xl">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-8 rounded-2xl shadow-sm">
               <div className="flex items-center gap-3 mb-6"><Megaphone className="text-[#D4AF37]" size={24} /><h2 className="text-xl text-gray-900 dark:text-[#F9F7F2] font-semibold">Nouvelle Actualité / Pub</h2></div>
               <form onSubmit={handleSubmitPromo} className="space-y-5">
-                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2">Titre *</Label><Input placeholder="Ex: Concert Gospel / -20% sur Plats" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" required /></div>
-                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2">Type d'affichage</Label>
-                  <select value={promoType} onChange={e => setPromoType(e.target.value)} className="w-full bg-white dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white p-3 rounded-lg text-sm">
-                    <option value="Promotion">Promotion (Resto)</option>
-                    <option value="Concert">Concert / Événement</option>
-                    <option value="Biblique">Message Biblique</option>
-                    <option value="Annonce">Annonce Générale</option>
+                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2 font-medium">Titre *</Label><Input placeholder="Ex: Concert Gospel / Promo Attiéké" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" required /></div>
+                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2 font-medium">Type d'affichage</Label>
+                  <select value={promoType} onChange={e => setPromoType(e.target.value)} className="w-full bg-white dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white p-3 rounded-lg text-sm transition-all focus:border-[#D4AF37] outline-none">
+                    <option value="Promotion" className="text-black">Promotion (Resto)</option>
+                    <option value="Concert" className="text-black">Concert / Événement</option>
+                    <option value="Biblique" className="text-black">Message Biblique</option>
+                    <option value="Annonce" className="text-black">Annonce Générale</option>
                   </select>
                 </div>
-                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2">Description / Message *</Label><Textarea placeholder="Contenu de la pub..." value={promoDescription} onChange={e => setPromoDescription(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 min-h-[100px]" required /></div>
-                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2">Affiche / Image</Label>
+                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2 font-medium">Description / Message *</Label><Textarea placeholder="Contenu détaillé de votre publicité..." value={promoDescription} onChange={e => setPromoDescription(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 min-h-[100px]" required /></div>
+                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2 font-medium">Affiche / Image</Label>
                   <UploadModeToggle mode={promoUploadMode} setMode={setPromoUploadMode} />
-                  {promoUploadMode === "url" ? <Input placeholder="URL image" value={promoImage} onChange={e => setPromoImage(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" /> : <Input type="file" accept="image/*" onChange={handlePromoFileChange} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" />}
+                  {promoUploadMode === "url" ? <Input placeholder="URL de l'image publicitaire" value={promoImage} onChange={e => setPromoImage(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" /> : <Input type="file" accept="image/*" onChange={handlePromoFileChange} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" />}
                 </div>
-                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2">Date (Optionnel pour Concert/Evenement)</Label><Input type="date" value={promoEndDate} onChange={e => setPromoEndDate(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" /></div>
-                <Button type="submit" disabled={uploadingPromo} className="w-full bg-[#D4AF37] text-white py-4">{uploadingPromo ? "Upload..." : "Créer l'annonce"}</Button>
+                <div><Label className="text-gray-600 dark:text-[#A3B1AD] block mb-2 font-medium">Date (Optionnel pour Concert/Evenement)</Label><Input type="date" value={promoEndDate} onChange={e => setPromoEndDate(e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" /></div>
+                <Button type="submit" disabled={uploadingPromo} className="w-full bg-[#D4AF37] text-white py-4 font-bold shadow-lg shadow-[#D4AF37]/20 hover:bg-[#C4A030]">{uploadingPromo ? "Upload en cours..." : "Créer l'annonce"}</Button>
               </form>
             </motion.div>
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               <h3 className="text-lg text-gray-900 dark:text-[#F9F7F2] font-semibold">Annonces actives</h3>
               {promotions.map(promo => (
-                <div key={promo.id} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-4 rounded-xl">
+                <div key={promo.id} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-4 rounded-xl shadow-sm">
                   <div className="flex justify-between items-start">
-                    <div><span className="text-[10px] bg-[#D4AF37]/20 text-[#D4AF37] px-2 py-1 rounded-full font-bold">{promo.promo_type}</span><h4 className="font-semibold text-gray-900 dark:text-white mt-1">{promo.title}</h4></div>
-                    <Switch checked={promo.is_active} onCheckedChange={() => handleTogglePromo(promo.id, promo.is_active)} />
+                    <div>
+                      <span className="text-[10px] bg-[#D4AF37]/20 text-[#D4AF37] px-2 py-1 rounded-full font-bold uppercase tracking-tighter">{promo.promo_type}</span>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mt-2 leading-tight">{promo.title}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{promo.description}</p>
+                    </div>
+                    <div className="flex flex-col items-center gap-3">
+                        <Switch checked={promo.is_active} onCheckedChange={() => handleTogglePromo(promo.id, promo.is_active)} />
+                        <Button onClick={() => handleDeletePromo(promo.id)} variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"><Trash2 size={16}/></Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -716,20 +860,20 @@ const AdminPage = () => {
           <div className="space-y-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-4 rounded-2xl text-center shadow-sm">
-                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1">Ventes du jour</p>
+                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1 font-medium uppercase tracking-tighter">Ventes du jour</p>
                 <p className="text-2xl font-bold text-[#D4AF37]">{cashStats?.total_sales || 0}</p>
               </div>
               <div className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-4 rounded-2xl text-center shadow-sm">
-                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1">Chiffre d'affaires</p>
+                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1 font-medium uppercase tracking-tighter">Chiffre d'affaires</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-[#F9F7F2]">{(cashStats?.total_revenue || 0).toLocaleString()} F</p>
               </div>
               <div className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-4 rounded-2xl text-center shadow-sm">
-                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1">Espèces</p>
-                <p className="text-2xl font-bold text-green-500">{(cashStats?.cash_total || 0).toLocaleString()} F</p>
+                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1 font-medium uppercase tracking-tighter">Espèces</p>
+                <p className="text-2xl font-bold text-green-500 dark:text-green-400">{(cashStats?.cash_total || 0).toLocaleString()} F</p>
               </div>
               <div className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-4 rounded-2xl text-center shadow-sm">
-                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1">Mobile Money</p>
-                <p className="text-2xl font-bold text-blue-500">{(cashStats?.mobile_money_total || 0).toLocaleString()} F</p>
+                <p className="text-gray-500 dark:text-[#A3B1AD] text-xs mb-1 font-medium uppercase tracking-tighter">Mobile Money</p>
+                <p className="text-2xl font-bold text-blue-500 dark:text-blue-400">{(cashStats?.mobile_money_total || 0).toLocaleString()} F</p>
               </div>
             </div>
 
@@ -737,58 +881,67 @@ const AdminPage = () => {
               <h3 className="text-lg font-semibold text-[#D4AF37] mb-6 flex items-center gap-2"><ShoppingCart size={20} /> Enregistrer une vente</h3>
               <form onSubmit={handleCashSaleSubmit} className="space-y-4">
                 {cashItems.map((item, index) => (
-                  <div key={index} className="flex flex-col md:flex-row gap-3 items-end">
+                  <div key={index} className="flex flex-col md:flex-row gap-3 items-end p-3 bg-white dark:bg-black/10 rounded-xl border border-gray-100 dark:border-white/5">
                     <div className="w-full md:flex-1">
-                      {index === 0 && <Label className="text-gray-500 text-xs mb-1 block">Plat</Label>}
-                      <select value={item.name} onChange={(e) => { const s = menuItems.find(m => m.name === e.target.value); const n = [...cashItems]; n[index] = {...n[index], name: e.target.value, price: s ? s.price : n[index].price}; setCashItems(n); }} className="w-full bg-white dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-lg p-2.5 text-sm">
+                      {index === 0 && <Label className="text-gray-500 dark:text-gray-400 text-xs mb-1 block">Sélectionner un Plat</Label>}
+                      <select value={item.name} onChange={(e) => { const s = menuItems.find(m => m.name === e.target.value); const n = [...cashItems]; n[index] = {...n[index], name: e.target.value, price: s ? s.price : n[index].price}; setCashItems(n); }} className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-lg p-2.5 text-sm outline-none focus:border-[#D4AF37] transition-all">
                         <option value="">Choisir un plat...</option>
-                        {menuItems.filter(m => m.is_available).map(m => <option key={m.id} value={m.name}>{m.name} ({m.price} F)</option>)}
+                        {menuItems.filter(m => m.is_available).map(m => <option key={m.id} value={m.name} className="text-black">{m.name} ({m.price} F)</option>)}
                       </select>
                     </div>
                     <div className="w-full md:w-24">
-                      {index === 0 && <Label className="text-gray-500 text-xs mb-1 block">Qté</Label>}
-                      <Input type="number" min="1" value={item.quantity} onChange={e => updateCashItem(index, "quantity", e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" />
+                      {index === 0 && <Label className="text-gray-500 dark:text-gray-400 text-xs mb-1 block">Qté</Label>}
+                      <Input type="number" min="1" value={item.quantity} onChange={e => updateCashItem(index, "quantity", e.target.value)} className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" />
                     </div>
                     <div className="w-full md:w-32">
-                      {index === 0 && <Label className="text-gray-500 text-xs mb-1 block">Prix</Label>}
-                      <Input type="number" value={item.price} onChange={e => updateCashItem(index, "price", e.target.value)} className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" />
+                      {index === 0 && <Label className="text-gray-500 dark:text-gray-400 text-xs mb-1 block">Prix Unit.</Label>}
+                      <Input type="number" value={item.price} onChange={e => updateCashItem(index, "price", e.target.value)} className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" />
                     </div>
-                    {cashItems.length > 1 && <Button type="button" onClick={() => removeCashItem(index)} className="bg-red-500 text-white p-2.5 rounded-lg"><Trash2 size={16}/></Button>}
+                    {cashItems.length > 1 && <Button type="button" onClick={() => removeCashItem(index)} className="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-lg h-10 shadow-sm"><Trash2 size={16}/></Button>}
                   </div>
                 ))}
-                <div className="flex flex-col md:flex-row gap-4 items-center pt-4">
-                  <Button type="button" onClick={addCashItem} className="bg-gray-100 dark:bg-white/5 text-[#D4AF37] hover:bg-gray-200">+ Ajouter ligne</Button>
-                  <div className="md:ml-auto text-xl font-bold text-[#D4AF37]">Total: {cashItems.reduce((s, i) => s + (i.price * i.quantity), 0).toLocaleString()} F</div>
+                <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-gray-100 dark:border-white/5">
+                  <Button type="button" onClick={addCashItem} variant="outline" className="bg-white dark:bg-white/5 text-[#D4AF37] border-[#D4AF37]/50 hover:bg-[#D4AF37]/10">+ Ajouter une ligne</Button>
+                  <div className="md:ml-auto text-2xl font-bold text-[#D4AF37] drop-shadow-sm">Total: {cashItems.reduce((s, i) => s + (i.price * i.quantity), 0).toLocaleString()} FCFA</div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                   <div>
-                    <Label className="text-gray-500 text-xs mb-2 block">Paiement</Label>
-                    <div className="flex gap-2">
-                      <Button type="button" onClick={() => setCashPaymentMethod("especes")} className={`flex-1 ${cashPaymentMethod === "especes" ? "bg-green-500 text-white" : "bg-gray-100 dark:bg-white/5 text-gray-500"}`}>Espèces</Button>
-                      <Button type="button" onClick={() => setCashPaymentMethod("mobile_money")} className={`flex-1 ${cashPaymentMethod === "mobile_money" ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-white/5 text-gray-500"}`}>MoMo</Button>
+                    <Label className="text-gray-500 dark:text-gray-400 text-xs mb-2 block font-medium uppercase tracking-widest">Mode de Paiement</Label>
+                    <div className="flex gap-3">
+                      <Button type="button" onClick={() => setCashPaymentMethod("especes")} className={`flex-1 font-bold py-6 rounded-xl transition-all ${cashPaymentMethod === "especes" ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : "bg-gray-100 dark:bg-white/5 text-gray-500 border border-transparent"}`}>Espèces</Button>
+                      <Button type="button" onClick={() => setCashPaymentMethod("mobile_money")} className={`flex-1 font-bold py-6 rounded-xl transition-all ${cashPaymentMethod === "mobile_money" ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "bg-gray-100 dark:bg-white/5 text-gray-500 border border-transparent"}`}>Momo / Orange</Button>
                     </div>
                   </div>
-                  <div><Label className="text-gray-500 text-xs mb-2 block">Note</Label><Input value={cashNote} onChange={e => setCashNote(e.target.value)} placeholder="Ex: Table 4" className="bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white" /></div>
+                  <div><Label className="text-gray-500 dark:text-gray-400 text-xs mb-2 block font-medium uppercase tracking-widest">Note Additionnelle</Label><Input value={cashNote} onChange={e => setCashNote(e.target.value)} placeholder="Ex: Table 4 / Client fidèle" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-full placeholder:text-gray-400" /></div>
                 </div>
-                <Button type="submit" disabled={submittingCash} className="w-full bg-[#D4AF37] text-white py-6 text-lg mt-6 shadow-lg shadow-[#D4AF37]/20">Enregistrer la vente</Button>
+                <Button type="submit" disabled={submittingCash} className="w-full bg-[#D4AF37] text-white py-8 text-xl font-bold mt-6 shadow-xl shadow-[#D4AF37]/20 transition-all hover:bg-[#C4A030] active:scale-[0.98]">Enregistrer la Vente</Button>
               </form>
             </div>
 
             <div className="bg-gray-50 dark:bg-[#0A1F1A] border border-gray-200 dark:border-white/5 p-6 rounded-2xl shadow-sm">
-               <h3 className="text-lg font-semibold text-gray-900 dark:text-[#F9F7F2] mb-4">Dernières ventes</h3>
+               <h3 className="text-lg font-semibold text-gray-900 dark:text-[#F9F7F2] mb-4">Historique des ventes du jour</h3>
                <div className="space-y-3">
-                 {cashSales.map(sale => (
-                   <div key={sale.id} className="bg-white dark:bg-white/5 p-4 rounded-xl flex justify-between items-center shadow-sm">
-                     <div>
-                       <p className="text-sm font-medium text-gray-900 dark:text-white">{sale.items.map(i => `${i.name} x${i.quantity}`).join(", ")}</p>
-                       <p className="text-[10px] text-gray-500">{new Date(sale.created_at).toLocaleTimeString()} - {sale.payment_method}</p>
-                     </div>
-                     <div className="flex items-center gap-4">
-                       <span className="font-bold text-[#D4AF37]">{sale.total.toLocaleString()} F</span>
-                       <Button onClick={() => requestDeleteSale(sale.id)} className="text-red-400 hover:text-red-500"><Trash2 size={16}/></Button>
-                     </div>
-                   </div>
-                 ))}
+                 {cashSales.length === 0 ? (
+                    <p className="text-center py-10 text-gray-400 italic">Aucune vente enregistrée pour le moment.</p>
+                 ) : (
+                  cashSales.map(sale => (
+                    <div key={sale.id} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-4 rounded-xl flex justify-between items-center shadow-sm group">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{sale.items.map(i => `${i.name} x${i.quantity}`).join(", ")}</p>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium">
+                          {new Date(sale.created_at).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})} 
+                          <span className="mx-2 opacity-30">|</span> 
+                          <span className={sale.payment_method === "especes" ? "text-green-600 dark:text-green-400" : "text-blue-600 dark:text-blue-400 uppercase"}>{sale.payment_method}</span>
+                          {sale.note && <span className="ml-2 opacity-60">({sale.note})</span>}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="font-bold text-lg text-gray-900 dark:text-[#D4AF37]">{sale.total.toLocaleString()} F</span>
+                        <Button onClick={() => requestDeleteSale(sale.id)} variant="ghost" size="sm" className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18}/></Button>
+                      </div>
+                    </div>
+                  ))
+                 )}
                </div>
             </div>
           </div>
@@ -801,12 +954,12 @@ const AdminPage = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#0A1F1A] border border-[#D4AF37]/30 rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl shadow-black/50">
               <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20"><ShieldAlert size={40} className="text-red-500" /></div>
-              <h3 className="text-2xl font-bold text-[#F9F7F2] mb-2">Sécurité Admin</h3>
-              <p className="text-[#A3B1AD] text-sm mb-8">Action sensible. Entrez le mot de passe pour confirmer la suppression.</p>
-              <div className="mb-8"><Input type="password" placeholder="Mot de passe secret" className="bg-black/40 border-[#D4AF37]/20 text-white text-center text-xl tracking-[0.5em] h-14" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} autoFocus /></div>
+              <h3 className="text-2xl font-bold text-[#F9F7F2] mb-2 font-display">Sécurité Admin</h3>
+              <p className="text-[#A3B1AD] text-sm mb-8 leading-relaxed">Cette action est irréversible. Veuillez confirmer avec le mot de passe maître pour supprimer cette vente.</p>
+              <div className="mb-8"><Input type="password" placeholder="Mot de passe secret" className="bg-black/40 border-[#D4AF37]/20 text-white text-center text-xl tracking-[0.5em] h-14 outline-none focus:border-[#D4AF37] transition-all" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} autoFocus /></div>
               <div className="flex gap-4">
-                <Button onClick={() => setShowDeleteAuth(false)} className="flex-1 bg-white/5 border border-white/10 text-[#A3B1AD] hover:bg-white/10 py-6">Annuler</Button>
-                <Button onClick={confirmDeleteSale} className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white border-0 shadow-lg shadow-red-900/20 py-6 font-bold">Confirmer</Button>
+                <Button onClick={() => {setShowDeleteAuth(false); setDeletePassword("");}} className="flex-1 bg-white/5 border border-white/10 text-[#A3B1AD] hover:bg-white/10 py-6 transition-colors">Annuler</Button>
+                <Button onClick={confirmDeleteSale} className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white border-0 shadow-lg shadow-red-900/20 py-6 font-bold transition-all hover:scale-[1.02]">Confirmer</Button>
               </div>
             </motion.div>
           </motion.div>
@@ -816,17 +969,18 @@ const AdminPage = () => {
       {/* LOGOUT MODAL */}
       <AnimatePresence>
         {showLogoutConfirm && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#0F2E24] border border-white/10 rounded-2xl p-6 w-full max-w-sm text-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowLogoutConfirm(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#0F2E24] border border-white/10 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl shadow-black/40" onClick={e => e.stopPropagation()}>
               <LogOut size={32} className="text-[#D4AF37] mx-auto mb-3" />
               <h3 className="text-lg font-bold text-[#F9F7F2] mb-2">Se déconnecter ?</h3>
-              <div className="flex gap-3 mt-6">
-                <Button onClick={() => setShowLogoutConfirm(false)} className="flex-1 bg-white/10 text-white">Annuler</Button>
-                <Button onClick={confirmLogout} className="flex-1 bg-red-500 hover:bg-red-600 text-white">Déconnexion</Button>
+              <p className="text-[#A3B1AD] text-sm mb-6">Êtes-vous sûr de vouloir quitter votre session de gestion ?</p>
+              <div className="flex gap-3">
+                <Button onClick={() => setShowLogoutConfirm(false)} variant="outline" className="flex-1 border-white/10 text-white hover:bg-white/5">Annuler</Button>
+                <Button onClick={confirmLogout} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold">Déconnexion</Button>
               </div>
             </motion.div>
           </motion.div>
-        )}
+        )}    
       </AnimatePresence>
     </div>
   );
