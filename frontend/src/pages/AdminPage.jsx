@@ -7,7 +7,7 @@ import { Textarea } from "../components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Switch } from "../components/ui/switch";
 import { toast } from "sonner";
-import { Plus, Trash2, Calendar, Image, Utensils, RefreshCw, Video, Megaphone, LogOut, Lock, User, Eye, EyeOff, X, Upload, Link, FileImage, Home, LayoutDashboard, MessageSquare, Check, XCircle, ShoppingCart, Pencil } from "lucide-react";
+import { Plus, Trash2, Calendar, Image, Utensils, RefreshCw, Video, Megaphone, LogOut, Lock, User, Eye, EyeOff, X, Upload, Link, FileImage, Home, LayoutDashboard, MessageSquare, Check, ShoppingCart, Pencil, ShieldAlert } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -44,6 +44,11 @@ const AdminPage = () => {
   const [cashNote, setCashNote] = useState("");
   const [submittingCash, setSubmittingCash] = useState(false);
   const [cashDate, setCashDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // DELETE SECURITY MODAL STATE
+  const [showDeleteAuth, setShowDeleteAuth] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState(null);
+  const [deletePassword, setDeletePassword] = useState("");
 
   // Daily Menu Form
   const [menuDate, setMenuDate] = useState(new Date().toISOString().split('T')[0]);
@@ -259,6 +264,31 @@ const AdminPage = () => {
     const newItems = [...cashItems];
     newItems[index] = { ...newItems[index], [field]: field === "name" ? value : Number(value) };
     setCashItems(newItems);
+  };
+
+  // --- DELETE CONFIRMATION HANDLERS ---
+  const requestDeleteSale = (saleId) => {
+    setSaleToDelete(saleId);
+    setDeletePassword("");
+    setShowDeleteAuth(true);
+  };
+
+  const confirmDeleteSale = async () => {
+    if (deletePassword !== "Jesusestroi@") {
+      toast.error("Mot de passe incorrect !");
+      return;
+    }
+
+    try {
+      await axios.delete(`${API}/caisse/vente/${saleToDelete}`);
+      toast.success("Vente supprimée avec succès");
+      fetchCaisseData();
+      setShowDeleteAuth(false);
+      setSaleToDelete(null);
+      setDeletePassword("");
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
   };
 
   // ==================== FILE UPLOAD ====================
@@ -663,7 +693,7 @@ const AdminPage = () => {
         try {
           finalImageUrl = await uploadFile(menuItemFile);
         } catch (error) {
-          toast.error("Erreur lors de l'upload de photo");
+          toast.error("Erreur lors de l'upload de la photo");
           setSubmittingMenuItem(false);
           return;
         }
@@ -1724,6 +1754,7 @@ const AdminPage = () => {
           </div>
         )}
 
+        {/* ==================== CAISSE ==================== */}
         {activeTab === "caisse" && (
           <div className="space-y-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1916,22 +1947,7 @@ const AdminPage = () => {
                         <span className="text-[#D4AF37] font-bold">{sale.total.toLocaleString()} F</span>
                         <Button 
                           size="sm"
-                          onClick={async () => {
-                            // PROTECTION PAR MOT DE PASSE ICI
-                            if (!window.confirm("Voulez-vous vraiment supprimer cette vente ?")) return;
-                            
-                            const password = window.prompt("Entrez le mot de passe administrateur pour confirmer :");
-                            if (password !== "Jesusestroi@") {
-                              toast.error("Mot de passe incorrect. Suppression annulée.");
-                              return;
-                            }
-
-                            try {
-                              await axios.delete(`${API}/caisse/vente/${sale.id}`);
-                              toast.success("Vente supprimée");
-                              fetchCaisseData();
-                            } catch (e) { toast.error("Erreur"); }
-                          }}
+                          onClick={() => requestDeleteSale(sale.id)}
                           className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
                         >
                           <Trash2 size={14} />
@@ -1968,6 +1984,57 @@ const AdminPage = () => {
                 </Button>
                 <Button onClick={confirmLogout} className="flex-1 bg-red-500 hover:bg-red-600 text-white">
                   Déconnexion
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- NOUVELLE MODALE SÉCURISÉE POUR SUPPRESSION --- */}
+      <AnimatePresence>
+        {showDeleteAuth && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowDeleteAuth(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#0F2E24] border border-[#D4AF37]/30 rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl shadow-black/50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+                <ShieldAlert size={32} className="text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-[#F9F7F2] mb-2">Autorisation Requise</h3>
+              <p className="text-[#A3B1AD] text-sm mb-6">
+                Cette action est irréversible. Entrez le mot de passe administrateur pour confirmer la suppression.
+              </p>
+              
+              <div className="mb-6">
+                <Input 
+                  type="password" 
+                  placeholder="Mot de passe" 
+                  className="input-luxury text-center tracking-widest"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setShowDeleteAuth(false)} 
+                  className="flex-1 bg-white/5 border border-white/10 text-[#A3B1AD] hover:bg-white/10"
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  onClick={confirmDeleteSale} 
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white border-0"
+                >
+                  Supprimer
                 </Button>
               </div>
             </motion.div>
