@@ -663,7 +663,7 @@ const AdminPage = () => {
         try {
           finalImageUrl = await uploadFile(menuItemFile);
         } catch (error) {
-          toast.error("Erreur lors de l'upload de la photo");
+          toast.error("Erreur lors de l'upload de photo");
           setSubmittingMenuItem(false);
           return;
         }
@@ -1917,7 +1917,15 @@ const AdminPage = () => {
                         <Button 
                           size="sm"
                           onClick={async () => {
-                            if (!window.confirm("Supprimer cette vente ?")) return;
+                            // PROTECTION PAR MOT DE PASSE ICI
+                            if (!window.confirm("Voulez-vous vraiment supprimer cette vente ?")) return;
+                            
+                            const password = window.prompt("Entrez le mot de passe administrateur pour confirmer :");
+                            if (password !== "Jesusestroi@") {
+                              toast.error("Mot de passe incorrect. Suppression annulée.");
+                              return;
+                            }
+
                             try {
                               await axios.delete(`${API}/caisse/vente/${sale.id}`);
                               toast.success("Vente supprimée");
