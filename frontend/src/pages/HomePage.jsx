@@ -180,32 +180,72 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 2. DAILY MENU SECTION */}
-      {dailyMenu && (
-        <section className="py-16 md:py-32 relative">
+{/* Section Menu du Jour avec sécurité anti-crash */}
+{dailyMenu && dailyMenu.items && Array.isArray(dailyMenu.items) && dailyMenu.items.length > 0 && (
+        <section className="py-16 md:py-32 relative" data-testid="daily-menu-section">
           <div className="absolute inset-0 bg-[#1A4D3E]/20"></div>
           <div className="max-w-7xl mx-auto px-4 md:px-12 relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-3 block">Aujourd'hui</span>
-                <h2 className="text-3xl md:text-5xl text-[#F9F7F2] mb-6 font-display">Menu du Jour</h2>
-                <div className="divider-gold mb-8"></div>
-                {dailyMenu.special_message && <p className="text-[#D4AF37] font-accent italic text-lg mb-8">{dailyMenu.special_message}</p>}
-                <ul className="space-y-4 mb-10">
-                  {dailyMenu.items.map((item, index) => (
-                    <li key={index} className="flex items-start gap-4 text-[#F9F7F2]/80"><span className="w-2 h-2 mt-2 rounded-full bg-[#D4AF37] shrink-0"></span><span className="text-base md:text-lg">{item}</span></li>
-                  ))}
-                </ul>
-                <a href="https://wa.me/2250709508819" target="_blank" rel="noopener noreferrer"><Button className="btn-gold w-full sm:w-auto py-6 text-base px-10">Commander (+225)</Button></a>
-              </motion.div>
-              <div className="relative">
-                <img src={dailyMenu.image_url || "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg"} className="rounded-2xl shadow-2xl w-full h-[350px] md:h-[500px] object-cover border border-[#D4AF37]/20" alt="Menu" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+              <div className="order-2 lg:order-1">
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }} 
+                  whileInView={{ opacity: 1, y: 0 }} 
+                  viewport={{ once: true }}
+                >
+                  <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em] mb-3 block">
+                    Aujourd'hui
+                  </span>
+                  <h2 className="text-3xl md:text-5xl text-[#F9F7F2] mb-6 font-display">
+                    Menu du Jour
+                  </h2>
+                  <div className="divider-gold mb-8"></div>
+                  
+                  {dailyMenu.special_message && (
+                    <p className="text-[#D4AF37] font-accent italic text-lg mb-8 bg-[#D4AF37]/5 p-4 rounded-lg border border-[#D4AF37]/10">
+                      {dailyMenu.special_message}
+                    </p>
+                  )}
+                  
+                  <ul className="space-y-4 mb-10">
+                    {dailyMenu.items.map((item, index) => (
+                      <li key={index} className="flex items-start gap-4 text-[#F9F7F2]/80">
+                        <span className="w-2 h-2 mt-2 rounded-full bg-[#D4AF37] shrink-0"></span>
+                        <span className="text-base md:text-lg leading-relaxed">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <a 
+                    href="https://wa.me/2250709508819?text=Bonjour, je souhaite commander le menu du jour" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <Button className="btn-gold w-full sm:w-auto py-6 text-base px-10">
+                      Commander (+225)
+                    </Button>
+                  </a>
+                </motion.div>
+              </div>
+              
+              <div className="order-1 lg:order-2 relative">
+                <img 
+                  src={dailyMenu.image_url || "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg"} 
+                  className="rounded-2xl shadow-2xl w-full h-[350px] md:h-[500px] object-cover border border-[#D4AF37]/20" 
+                  alt="Affiche du jour" 
+                  onError={(e) => {
+                    e.target.src = "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg";
+                  }}
+                />
+                <div className="absolute -bottom-4 -right-4 glass p-5 rounded-xl border border-white/10 shadow-lg">
+                  <Sparkles className="text-[#D4AF37] mb-2" size={24} />
+                  <p className="text-[#F9F7F2] font-semibold text-sm">Fait Maison</p>
+                </div>
               </div>
             </div>
           </div>
         </section>
       )}
-
+      
       {/* 3. FEATURED DISHES SECTION */}
       <section className="py-16 md:py-32">
         <div className="max-w-7xl mx-auto px-4 md:px-12 text-center mb-16">
