@@ -83,25 +83,24 @@ const ContactPage = () => {
             className="space-y-8"
           >
             <div className="luxury-card p-2 rounded-3xl overflow-hidden h-[400px] relative group">
-              {/* NOUVELLE CARTE AVEC ADRESSE EXACTE */}
+              {/* CARTE AVEC ADRESSE EXACTE : Rue K40, 450, Abidjan */}
               <iframe 
                 width="100%" 
                 height="100%" 
-                id="gmap_canvas" 
-                src="https://maps.google.com/maps?q=Rue%20K40,450,%20Abidjan&t=&z=15&ie=UTF8&iwloc=&output=embed" 
                 frameBorder="0" 
                 scrolling="no" 
                 marginHeight="0" 
                 marginWidth="0"
+                src="https://maps.google.com/maps?q=Rue%20K40%2C%20450%2C%20Abidjan&t=&z=15&ie=UTF8&iwloc=&output=embed" 
                 className="grayscale group-hover:grayscale-0 transition-all duration-700"
-                style={{ filter: "invert(90%) hue-rotate(180deg) contrast(85%) grayscale(80%)" }} // Effet sombre pour la carte
+                style={{ filter: "invert(90%) hue-rotate(180deg) contrast(85%) grayscale(80%)" }}
               ></iframe>
               
               <div className="absolute bottom-6 left-6 bg-[#05100D]/90 backdrop-blur-md p-4 rounded-xl border border-[#D4AF37]/20 flex items-center gap-3">
                 <MapPin className="text-[#D4AF37]" size={24} />
                 <div>
                   <p className="text-[#F9F7F2] font-semibold text-sm">Rue K40, 450</p>
-                  <p className="text-[#A3B1AD] text-xs">Abidjan, Côte d'Ivoire</p>
+                  <p className="text-[#A3B1AD] text-xs">Yopougon, Abidjan, CI</p>
                 </div>
               </div>
             </div>

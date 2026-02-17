@@ -5,7 +5,7 @@ import { API } from "../App";
 import { Button } from "../components/ui/button";
 import MenuCard from "../components/MenuCard";
 import StarRating from "../components/StarRating";
-import { ArrowRight, MapPin, Clock, Sparkles, Send, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, MapPin, Clock, Sparkles, Send, CheckCircle, ChevronLeft, ChevronRight, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ const FacebookIcon = ({ size = 24, className = "" }) => (
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
   </svg>
 );
+
 
 const PromoCarousel = ({ promotions }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -377,9 +378,9 @@ const HomePage = () => {
               
               <div className="order-1 lg:order-2 relative">
                 <img 
-                  src="https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg"
-                  alt="Client satisfait"
-                  className="rounded-2xl shadow-2xl w-full h-[300px] md:h-auto object-cover"
+                  src={dailyMenu.image_url || "https://customer-assets.emergentagent.com/job_b5c0ff47-ce71-407d-b22b-390360e9dd58/artifacts/ha2l407l_cv.jpg"}
+                  alt="Affiche du menu du jour"
+                  className="rounded-2xl shadow-2xl w-full h-[300px] md:h-auto object-cover border border-[#D4AF37]/20"
                 />
                 <div className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 glass p-4 md:p-6 rounded-xl flex items-center gap-3 shadow-lg max-w-[200px]">
                   <Sparkles className="text-[#D4AF37]" size={24} />
@@ -474,7 +475,7 @@ const HomePage = () => {
               <div className="divider-gold mb-6 md:mb-8"></div>
               <p className="text-base md:text-lg text-[#A3B1AD] leading-relaxed mb-8">
                 Chez Loman, nous perpétuons la tradition culinaire ivoirienne avec passion et excellence. 
-                Chaque plat raconte une histoire, chaque saveur vous transporte au cœur de la Côte d'Ivoire.
+                Chaque plat raconte une story, chaque saveur vous transporte au cœur de la Côte d'Ivoire.
               </p>
               <p className="text-xl md:text-2xl font-accent italic text-[#D4AF37] mb-8 md:mb-10">
                 "Viens goûter, tu vas comprendre"
@@ -489,7 +490,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Promotions Carousel */}
+      {/* Promotions & Publicités */}
       {promotions.length > 0 && (
         <section className="py-12 md:py-20 bg-gradient-to-b from-[#0A1F1A] to-[#0F2E24]" data-testid="promo-banner">
           <div className="max-w-7xl mx-auto px-4 md:px-12">
@@ -498,10 +499,10 @@ const HomePage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-8 md:mb-10"
+              className="text-center mb-10"
             >
-              <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em]">Nos Offres</span>
-              <h2 className="text-2xl md:text-4xl font-bold text-[#F9F7F2] mt-2 font-display">Promotions & Publicités</h2>
+              <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.3em]">Exclusivités</span>
+              <h2 className="text-2xl md:text-4xl font-bold text-[#F9F7F2] mt-3 font-display">Publicités & Offres</h2>
             </motion.div>
             <PromoCarousel promotions={promotions} />
           </div>
@@ -706,6 +707,7 @@ const HomePage = () => {
                 href="https://wa.me/2250709508819?text=Bonjour, je souhaite réserver une table"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="w-full sm:w-auto"
               >
                 <Button className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F9F7F2] rounded-full px-10 py-6 text-lg font-semibold w-full sm:w-auto transition-all duration-400">
                   Réserver sur WhatsApp
@@ -713,7 +715,7 @@ const HomePage = () => {
               </a>
               <a href="tel:+2250709508819">
                 <Button className="bg-transparent border border-[#F9F7F2]/30 text-[#F9F7F2] hover:bg-[#F9F7F2] hover:text-[#1A4D3E] rounded-full px-10 py-6 text-lg font-medium w-full sm:w-auto transition-all duration-400">
-                  Appeler: 07 09 508 819
+                  Appeler: +225 07 09 50 88 19
                 </Button>
               </a>
             </div>

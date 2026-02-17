@@ -54,6 +54,13 @@ const AdminPage = () => {
   const [menuDate, setMenuDate] = useState(new Date().toISOString().split('T')[0]);
   const [menuItemsList, setMenuItemsList] = useState([""]);
   const [specialMessage, setSpecialMessage] = useState("");
+  
+  // MODIFS : Daily Menu Image States
+  const [menuImageUrl, setMenuImageUrl] = useState("");
+  const [menuUploadMode, setMenuUploadMode] = useState("url");
+  const [menuFile, setMenuFile] = useState(null);
+  const [menuPreview, setMenuPreview] = useState("");
+  const menuFileRef = useRef(null);
 
   // Photo Form
   const [photoUrl, setPhotoUrl] = useState("");
@@ -346,6 +353,15 @@ const AdminPage = () => {
     setMenuItemsList(newItems);
   };
 
+  // MODIFS : Handle Menu Image Change
+  const handleMenuFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMenuFile(file);
+      setMenuPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmitMenu = async (e) => {
     e.preventDefault();
     const filteredItems = menuItemsList.filter(item => item.trim() !== "");
@@ -353,15 +369,32 @@ const AdminPage = () => {
       toast.error("Ajoutez au moins un plat");
       return;
     }
+
+    let finalImageUrl = menuImageUrl;
+
+    // MODIFS : Upload logic for daily menu image
+    if (menuUploadMode === "file" && menuFile) {
+      try {
+        finalImageUrl = await uploadFile(menuFile);
+      } catch (error) {
+        toast.error("Erreur lors de l'upload de l'affiche");
+        return;
+      }
+    }
+
     try {
       await axios.post(`${API}/daily-menu`, {
         date: menuDate,
         items: filteredItems,
-        special_message: specialMessage || null
+        special_message: specialMessage || null,
+        image_url: finalImageUrl || null // Nouveau champ
       });
       toast.success("Menu du jour créé!");
       setMenuItemsList([""]);
       setSpecialMessage("");
+      setMenuImageUrl("");
+      setMenuFile(null);
+      setMenuPreview("");
       fetchData();
     } catch (error) {
       toast.error("Erreur lors de la création");
@@ -784,9 +817,9 @@ const AdminPage = () => {
         type="button"
         onClick={() => setMode("url")}
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
-          mode === "url" 
-            ? "bg-[#D4AF37] text-[#0F2E24]" 
-            : "bg-white/5 text-[#A3B1AD] border border-white/10"
+          mode === "url" 
+          ? "bg-[#D4AF37] text-[#0F2E24]" 
+          : "bg-white/5 text-[#A3B1AD] border border-white/10"
         }`}
       >
         <Link size={16} />
@@ -796,9 +829,9 @@ const AdminPage = () => {
         type="button"
         onClick={() => setMode("file")}
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
-          mode === "file" 
-            ? "bg-[#D4AF37] text-[#0F2E24]" 
-            : "bg-white/5 text-[#A3B1AD] border border-white/10"
+          mode === "file" 
+          ? "bg-[#D4AF37] text-[#0F2E24]" 
+          : "bg-white/5 text-[#A3B1AD] border border-white/10"
         }`}
       >
         <Upload size={16} />
@@ -1111,6 +1144,41 @@ const AdminPage = () => {
                     <Plus size={16} className="mr-2" /> Ajouter un plat
                   </Button>
                 </div>
+
+                {/* MODIFS : Daily Menu Image Form Section */}
+                <div className="mt-6">
+                  <Label className="text-[#A3B1AD] mb-2 block">Affiche du Menu (Image)</Label>
+                  <UploadModeToggle mode={menuUploadMode} setMode={setMenuUploadMode} />
+                  {menuUploadMode === "url" ? (
+                    <Input 
+                      placeholder="Lien de l'image" 
+                      value={menuImageUrl} 
+                      onChange={(e) => setMenuImageUrl(e.target.value)} 
+                      className="input-luxury" 
+                    />
+                  ) : (
+                    <div 
+                      onClick={() => menuFileRef.current?.click()} 
+                      className="border-2 border-dashed border-[#D4AF37]/30 p-6 rounded-xl text-center cursor-pointer hover:border-[#D4AF37]/50"
+                    >
+                      <Upload className="mx-auto text-[#D4AF37] mb-2" />
+                      <p className="text-xs text-[#A3B1AD]">Cliquez pour uploader l'affiche</p>
+                      <input 
+                        type="file" 
+                        ref={menuFileRef} 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleMenuFileChange} 
+                      />
+                    </div>
+                  )}
+                  {(menuPreview || menuImageUrl) && (
+                    <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden border border-[#D4AF37]/20">
+                      <img src={menuPreview || menuImageUrl} className="w-full h-full object-cover" alt="Preview menu" />
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <Label className="text-[#A3B1AD] mb-2 block">Message spécial (optionnel)</Label>
                   <Textarea placeholder="Ex: Bissap offert pour toute commande de plus de 5000 FCFA!" value={specialMessage} onChange={(e) => setSpecialMessage(e.target.value)} className="input-luxury min-h-[80px]" data-testid="special-message-input" />
@@ -1142,6 +1210,9 @@ const AdminPage = () => {
                           <Trash2 size={18} />
                         </Button>
                       </div>
+                      {menu.image_url && (
+                        <img src={menu.image_url} className="w-full h-24 object-cover rounded-lg mb-3 opacity-50" alt="menu small" />
+                      )}
                       <ul className="space-y-1 text-sm text-[#A3B1AD]">
                         {menu.items.map((item, i) => <li key={i}>• {item}</li>)}
                       </ul>
@@ -1991,50 +2062,50 @@ const AdminPage = () => {
         )}
       </AnimatePresence>
 
-      {/* --- NOUVELLE MODALE SÉCURISÉE POUR SUPPRESSION --- */}
+      {/* --- MODALE SÉCURISÉE POUR SUPPRESSION --- */}
       <AnimatePresence>
         {showDeleteAuth && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
             onClick={() => setShowDeleteAuth(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#0F2E24] border border-[#D4AF37]/30 rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl shadow-black/50"
+              className="bg-[#0A1F1A] border border-[#D4AF37]/30 rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl shadow-black/50"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-                <ShieldAlert size={32} className="text-red-500" />
+              <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                <ShieldAlert size={40} className="text-red-500" />
               </div>
-              <h3 className="text-xl font-bold text-[#F9F7F2] mb-2">Autorisation Requise</h3>
-              <p className="text-[#A3B1AD] text-sm mb-6">
-                Cette action est irréversible. Entrez le mot de passe administrateur pour confirmer la suppression.
+              <h3 className="text-2xl font-bold text-[#F9F7F2] mb-2 font-display">Sécurité Admin</h3>
+              <p className="text-[#A3B1AD] text-sm mb-8 leading-relaxed">
+                Action sensible détectée. Veuillez entrer le mot de passe de confirmation pour supprimer cette vente.
               </p>
               
-              <div className="mb-6">
+              <div className="mb-8">
                 <Input 
                   type="password" 
-                  placeholder="Mot de passe" 
-                  className="input-luxury text-center tracking-widest"
+                  placeholder="Mot de passe secret" 
+                  className="input-luxury text-center text-xl tracking-[0.5em] h-14"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
                   autoFocus
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <Button 
-                  onClick={() => setShowDeleteAuth(false)} 
-                  className="flex-1 bg-white/5 border border-white/10 text-[#A3B1AD] hover:bg-white/10"
+                  onClick={() => {setShowDeleteAuth(false); setDeletePassword("");}} 
+                  className="flex-1 bg-white/5 border border-white/10 text-[#A3B1AD] hover:bg-white/10 py-6"
                 >
                   Annuler
                 </Button>
                 <Button 
                   onClick={confirmDeleteSale} 
-                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white border-0"
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white border-0 shadow-lg shadow-red-900/20 py-6 font-bold"
                 >
-                  Supprimer
+                  Confirmer
                 </Button>
               </div>
             </motion.div>
