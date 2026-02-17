@@ -395,7 +395,7 @@ const HomePage = () => {
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-4xl md:text-6xl font-accent italic text-[#F9F7F2] mb-6">Une Table Vous Attend</h2>
             <div className="flex flex-wrap justify-center gap-4 mt-10">
-              <a href="https://wa.me/2250709508819" target="_blank" rel="noopener noreferrer"><Button className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F9F7F2] rounded-full px-10 py-6 text-lg font-bold">WhatsApp (+225)</Button></a>
+              <a href="https://wa.me/2250709508819" target="_blank" rel="noopener noreferrer"><Button className="bg-[#D4AF37] text-[#0F2E24] hover:bg-[#F9F7F2] rounded-full px-10 py-6 text-lg font-bold">WhatsApp</Button></a>
               <a href="tel:+2250709508819"><Button className="bg-transparent border border-white/30 text-[#F9F7F2] hover:bg-white/10 rounded-full px-10 py-6 text-lg font-medium flex items-center gap-2"><Phone size={18}/> Appeler le +225 07 09 50 88 19</Button></a>
             </div>
           </motion.div>
